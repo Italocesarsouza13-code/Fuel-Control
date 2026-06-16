@@ -371,6 +371,10 @@ select.filter-sel option{background:var(--bg3)}
         <select class="filter-sel" id="filter-veic" onchange="renderAbast()">
           <option value="">Todos os veículos</option>
         </select>
+        <button class="btn btn-secondary" onclick="openModal('modal-import')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Importar Planilha
+        </button>
         <button class="btn btn-primary" onclick="openModal('modal-abast')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Registrar Abastecimento
@@ -678,8 +682,69 @@ select.filter-sel option{background:var(--bg3)}
   </div>
 </div>
 
+<!-- MODAL IMPORTAR PLANILHA -->
+<div class="modal-backdrop" id="modal-import">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Importar Abastecimentos</div>
+        <div class="modal-sub">Selecione a planilha Excel (.xlsx) com os dados de abastecimento</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-import')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Upload area -->
+      <div id="import-drop" onclick="document.getElementById('import-file').click()"
+        style="border:2px dashed var(--border2);border-radius:10px;padding:32px 20px;text-align:center;cursor:pointer;transition:border-color 0.15s;background:var(--bg3)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;color:var(--text3);margin:0 auto 10px;display:block"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div style="font-size:14px;font-weight:600;color:var(--text2)">Clique para selecionar o arquivo</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">Formato: .xlsx — colunas: DATA, PLACA, MOTORISTA, FORNECEDOR, CIDADE, KM, VOLUME, VALOR LITRO, TOTAL, KM RODADO, MÉDIA KM/L</div>
+        <input type="file" id="import-file" accept=".xlsx" style="display:none" onchange="handleImportFile(this)">
+      </div>
+      <!-- Preview -->
+      <div id="import-preview" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div>
+            <span id="import-filename" style="font-size:13px;font-weight:600;color:var(--text)"></span>
+            <span id="import-count" style="font-size:12px;color:var(--text3);margin-left:8px"></span>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-file').click()">Trocar arquivo</button>
+        </div>
+        <!-- Warnings -->
+        <div id="import-warnings" style="display:none;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:var(--amber)"></div>
+        <!-- Table preview -->
+        <div style="overflow-x:auto;max-height:260px;overflow-y:auto;border:1px solid var(--border);border-radius:8px">
+          <table style="min-width:600px;font-size:12px">
+            <thead><tr>
+              <th style="padding:8px 12px;background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap">Data</th>
+              <th style="padding:8px 12px;background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap">Placa</th>
+              <th style="padding:8px 12px;background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap">Motorista</th>
+              <th style="padding:8px 12px;background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap">Fornecedor</th>
+              <th style="padding:8px 12px;background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap">Litros</th>
+              <th style="padding:8px 12px;background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap">Preço/L</th>
+              <th style="padding:8px 12px;background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap">Total</th>
+              <th style="padding:8px 12px;background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap">KM</th>
+              <th style="padding:8px 12px;background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap">Média</th>
+              <th style="padding:8px 12px;background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap">Status</th>
+            </tr></thead>
+            <tbody id="import-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-import')">Cancelar</button>
+      <button class="btn btn-primary" id="import-btn" style="display:none" onclick="executeImport()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="import-btn-label">Importar</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"><span class="toast-dot"></span><span id="toast-msg"></span></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 // ── SUPABASE ──────────────────────────────────────────────────────────────────
 const SUPA_URL='https://zknzjztpudhetmssjnkl.supabase.co';
@@ -687,12 +752,14 @@ const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 async function db(table,opts={}){
   const url=`${SUPA_URL}/rest/v1/${table}`;
+  const prefer=opts.prefer||'return=representation';
+  delete opts.prefer;
   const res=await fetch(url,{
     headers:{
       'apikey':SUPA_KEY,
       'Authorization':`Bearer ${SUPA_KEY}`,
       'Content-Type':'application/json',
-      'Prefer':'return=representation',
+      'Prefer':prefer,
     },
     ...opts,
   });
@@ -1516,6 +1583,183 @@ function renderRelatorio(){
   }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">Sem dados</td></tr>';
 }
 
+
+// ── IMPORTAÇÃO DE PLANILHA ────────────────────────────────────────────────────
+let importRows=[];
+
+function handleImportFile(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const raw=XLSX.utils.sheet_to_json(ws,{defval:''});
+    parseImportRows(raw,file.name);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function parseImportRows(raw,filename){
+  importRows=[];
+  const warnings=[];
+
+  raw.forEach((r,i)=>{
+    const get=(...keys)=>{for(const k of keys){const found=Object.keys(r).find(rk=>rk.trim().toUpperCase()===k.toUpperCase());if(found!==undefined&&r[found]!==''&&r[found]!==undefined)return r[found];}return '';};
+
+    const dataRaw=get('DATA','Data');
+    let dataFmt='';
+    if(dataRaw instanceof Date){
+      dataFmt=dataRaw.toISOString().slice(0,10);
+    }else if(typeof dataRaw==='string'&&dataRaw){
+      const m=dataRaw.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      dataFmt=m?`${m[3]}-${m[2]}-${m[1]}`:dataRaw;
+    }
+
+    const placa=String(get('PLACA','Placa')).trim().toUpperCase();
+    const motorista=String(get('MOTORISTA','Motorista')).trim();
+    const fornecedor=String(get('FORNECEDOR','Fornecedor')).trim();
+    const cidade=String(get('CIDADE','Cidade')).trim();
+    const km=parseFloat(get('KM','Km'))||null;
+    const litros=parseFloat(get('VOLUME','Volume','LITROS','Litros'))||0;
+    const precoL=parseFloat(get('VALOR LITRO','Valor Litro'))||0;
+    const total=parseFloat(get('TOTAL','Total'))||parseFloat((litros*precoL).toFixed(2));
+    const kmRodado=parseFloat(get('KM RODADO','Km Rodado','KM_RODADO'))||null;
+    const media=parseFloat(get('MÉDIA KM/L','MEDIA KM/L','Média KM/L'))||null;
+    const docNum=String(get('DOCUMENTO','Documento','ID')||'').trim();
+
+    if(!placa){warnings.push(`Linha ${i+2}: placa vazia, ignorada.`);return;}
+    if(!litros){warnings.push(`Linha ${i+2}: volume zero, ignorada.`);return;}
+
+    const veicMatch=S.veics.find(v=>v.placa.replace(/[^A-Z0-9]/g,'')===placa.replace(/[^A-Z0-9]/g,''));
+    const motMatch=!motorista||motorista==='SEM MOTORISTA'?null:
+      S.mots.find(m=>m.nome.toUpperCase()===motorista.toUpperCase())||
+      S.mots.find(m=>m.nome.toUpperCase().includes(motorista.split(' ')[0].toUpperCase()));
+
+    importRows.push({data:dataFmt,placa,motorista,fornecedor,cidade,km,litros,precoL,total,kmRodado,media,docNum,
+      veicId:veicMatch?.id||null,motId:motMatch?.id||null,
+      veicOk:!!veicMatch,motOk:!!motMatch||!motorista||motorista==='SEM MOTORISTA'});
+  });
+
+  document.getElementById('import-filename').textContent=filename;
+  document.getElementById('import-count').textContent=`${importRows.length} registros encontrados`;
+  document.getElementById('import-preview').style.display='';
+
+  const warnEl=document.getElementById('import-warnings');
+  if(warnings.length){warnEl.style.display='';warnEl.innerHTML='<strong>Atenção:</strong> '+warnings.slice(0,5).join(' | ')+(warnings.length>5?` e mais ${warnings.length-5} avisos.`:'');}
+  else{warnEl.style.display='none';}
+
+  document.getElementById('import-tbody').innerHTML=importRows.map(r=>{
+    const vb=r.veicOk
+      ?`<span style="background:var(--green-bg);color:var(--green);padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700">${r.placa}</span>`
+      :`<span style="background:var(--amber-bg);color:var(--amber);padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700" title="Será criado automaticamente">${r.placa} ★</span>`;
+    const mb=r.motOk
+      ?`<span style="color:var(--text2)">${r.motorista||'—'}</span>`
+      :`<span style="color:var(--amber)" title="Será criado automaticamente">${r.motorista} ★</span>`;
+    const st=(!r.veicOk||!r.motOk)
+      ?`<span style="color:var(--amber);font-size:10px">★ Novo</span>`
+      :`<span style="color:var(--green);font-size:10px">✓ OK</span>`;
+    return`<tr>
+      <td style="padding:7px 12px;border-bottom:1px solid var(--border);white-space:nowrap;color:var(--text2)">${r.data?new Date(r.data+'T12:00').toLocaleDateString('pt-BR'):'—'}</td>
+      <td style="padding:7px 12px;border-bottom:1px solid var(--border)">${vb}</td>
+      <td style="padding:7px 12px;border-bottom:1px solid var(--border)">${mb}</td>
+      <td style="padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text3);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.fornecedor}">${r.fornecedor}</td>
+      <td style="padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text2)">${r.litros.toFixed(2)} L</td>
+      <td style="padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text2)">R$ ${r.precoL.toFixed(3).replace('.',',')}</td>
+      <td style="padding:7px 12px;border-bottom:1px solid var(--border);font-weight:700;color:var(--text)">R$ ${r.total.toFixed(2).replace('.',',')}</td>
+      <td style="padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text2)">${r.km?r.km.toLocaleString('pt-BR'):'—'}</td>
+      <td style="padding:7px 12px;border-bottom:1px solid var(--border);font-weight:700;color:${r.media>=2.35?'var(--green)':r.media>=2.20?'var(--amber)':'var(--red)'}">${r.media?r.media.toFixed(2)+' km/L':'—'}</td>
+      <td style="padding:7px 12px;border-bottom:1px solid var(--border)">${st}</td>
+    </tr>`;
+  }).join('');
+
+  const btn=document.getElementById('import-btn');
+  btn.style.display=importRows.length?'':'none';
+  document.getElementById('import-btn-label').textContent=`Importar ${importRows.length} registros`;
+}
+
+async function executeImport(){
+  if(!importRows.length)return;
+  const btn=document.getElementById('import-btn');
+  btn.disabled=true;
+  document.getElementById('import-btn-label').textContent='Importando...';
+  showLoading(true);
+
+  // Recarrega dados frescos para evitar conflitos
+  await loadAll();
+
+  // Cria postos ausentes
+  const postoCache={};
+  for(const r of importRows){
+    const key=r.fornecedor.toUpperCase();
+    if(postoCache[key]!==undefined){r.postoId=postoCache[key];continue;}
+    const ex=S.postos.find(p=>p.nome.toUpperCase()===key);
+    if(ex){postoCache[key]=ex.id;r.postoId=ex.id;}
+    else{
+      const nid=uid();
+      const cid=r.cidade.split('/')[0]?.trim()||'';
+      const est=r.cidade.split('/')[1]?.trim()||'';
+      try{await db('postos',{method:'POST',body:JSON.stringify({id:nid,nome:r.fornecedor,bandeira:'Sem bandeira',tel:'',end:'',cidade:cid,estado:est,fuels:['Diesel S-10']})});postoCache[key]=nid;r.postoId=nid;}
+      catch(e){postoCache[key]=null;r.postoId=null;}
+    }
+  }
+
+  // Cria motoristas ausentes
+  const motCache={};
+  for(const r of importRows){
+    if(!r.motorista||r.motorista==='SEM MOTORISTA'){r.motId=null;continue;}
+    if(r.motId){motCache[r.motorista.toUpperCase()]=r.motId;continue;}
+    const key=r.motorista.toUpperCase();
+    if(motCache[key]!==undefined){r.motId=motCache[key];continue;}
+    await loadAll();
+    const ex=S.mots.find(m=>m.nome.toUpperCase()===key);
+    if(ex){motCache[key]=ex.id;r.motId=ex.id;}
+    else{
+      const nid=uid();
+      try{await db('motoristas',{method:'POST',body:JSON.stringify({id:nid,nome:r.motorista,cpf:'',tel:'',email:'',cnh:'',cat:'E',cnh_val:null,status:'ativo',obs:'Importado via planilha'})});motCache[key]=nid;r.motId=nid;}
+      catch(e){motCache[key]=null;r.motId=null;}
+    }
+  }
+
+  // Cria veículos ausentes
+  const veicCache={};
+  for(const r of importRows){
+    const key=r.placa.replace(/[^A-Z0-9]/g,'');
+    if(r.veicId){veicCache[key]=r.veicId;continue;}
+    if(veicCache[key]!==undefined){r.veicId=veicCache[key];continue;}
+    await loadAll();
+    const ex=S.veics.find(v=>v.placa.replace(/[^A-Z0-9]/g,'')===key);
+    if(ex){veicCache[key]=ex.id;r.veicId=ex.id;}
+    else{
+      const nid=uid();
+      try{await db('veiculos',{method:'POST',body:JSON.stringify({id:nid,placa:r.placa,modelo:'',marca:'',ano:'',cor:'',renavam:'',comb:'Diesel S-10',km_inicial:r.km||0})});veicCache[key]=nid;r.veicId=nid;}
+      catch(e){veicCache[key]=null;r.veicId=null;}
+    }
+  }
+
+  // Insere abastecimentos em lotes de 20
+  let ok=0,fail=0;
+  for(let i=0;i<importRows.length;i+=20){
+    const batch=importRows.slice(i,i+20).map(r=>({
+      id:uid(),mot_id:r.motId||null,veic_id:r.veicId||null,posto_id:r.postoId||null,
+      tipo:'Diesel S-10',litros:r.litros,preco:r.precoL,total:r.total,
+      km:r.km||null,km_ant:r.km&&r.kmRodado?(r.km-r.kmRodado):null,
+      media:r.media||null,data:r.data||today(),
+      obs:r.docNum?`Doc: ${r.docNum}`:'',
+    }));
+    try{await db('abastecimentos',{method:'POST',body:JSON.stringify(batch),prefer:'return=minimal'});ok+=batch.length;}
+    catch(e){fail+=batch.length;}
+  }
+
+  showLoading(false);
+  btn.disabled=false;
+  closeModal('modal-import');
+  importRows=[];
+  document.getElementById('import-preview').style.display='none';
+  document.getElementById('import-file').value='';
+  await loadAll();
+  toast(`✓ ${ok} abastecimentos importados${fail?` · ${fail} com erro`:''}!`);
+}
 
 loadAll();
 </script>
