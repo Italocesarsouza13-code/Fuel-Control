@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FuelTracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f0f11;--bg2:#16161a;--bg3:#1c1c21;--bg4:#232329;
+  --border:#2a2a32;--border2:#353540;
+  --text:#f0f0f4;--text2:#9090a0;--text3:#5a5a6a;
+  --accent:#6c63ff;--accent2:#8b85ff;--accent-bg:rgba(108,99,255,0.12);--accent-border:rgba(108,99,255,0.35);
+  --green:#22c55e;--green-bg:rgba(34,197,94,0.12);
+  --red:#ef4444;--red-bg:rgba(239,68,68,0.12);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,0.12);
+  --blue:#3b82f6;--blue-bg:rgba(59,130,246,0.12);
+  --teal:#14b8a6;--teal-bg:rgba(20,184,166,0.12);
+  --cyan:#06b6d4;--cyan-bg:rgba(6,182,212,0.12);
+  --pink:#ec4899;--pink-bg:rgba(236,72,153,0.12);
+  --sidebar:240px;--r:10px;--r2:14px;--font:'Inter',system-ui,sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;font-size:14px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.sidebar{width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.brand{padding:20px 18px 14px;border-bottom:1px solid var(--border)}
+.brand-logo{display:flex;align-items:center;gap:10px}
+.brand-icon{width:34px;height:34px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-icon svg{width:17px;height:17px;color:#fff}
+.brand-name{font-size:14px;font-weight:700;letter-spacing:-0.02em;color:var(--text)}
+.brand-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.nav{flex:1;padding:8px 8px;overflow-y:auto}
+.nav-section{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;padding:14px 10px 5px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;color:var(--text2);cursor:pointer;font-size:13px;font-weight:500;transition:all 0.12s;border:none;background:none;width:100%;text-align:left;position:relative}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--accent-bg);color:var(--accent2)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:16px;background:var(--accent);border-radius:0 3px 3px 0}
+.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:0.75}
+.nav-item.active svg{opacity:1}
+.sidebar-footer{padding:8px 8px 12px;border-top:1px solid var(--border)}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;background:var(--bg)}
+.topbar{background:rgba(15,15,17,0.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:10}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.page-title{font-size:15px;font-weight:700;letter-spacing:-0.02em}
+.page-badge{background:var(--bg4);border:1px solid var(--border);color:var(--text2);font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.content{padding:22px;flex:1}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.14s;font-family:var(--font);white-space:nowrap}
+.btn svg{width:13px;height:13px}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-secondary{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn-secondary:hover{background:var(--bg4);color:var(--text)}
+.btn-ghost{background:transparent;color:var(--text3);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg3);color:var(--text2)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+.btn-danger:hover{background:rgba(239,68,68,0.2)}
+.btn-sm{padding:4px 10px;font-size:12px;border-radius:6px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13.5px;font-weight:700;color:var(--text);letter-spacing:-0.01em}
+.card-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:18px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;position:relative;overflow:hidden;transition:border-color 0.18s}
+.stat-card:hover{border-color:var(--border2)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-accent::before{background:var(--accent)}.stat-green::before{background:var(--green)}.stat-red::before{background:var(--red)}.stat-amber::before{background:var(--amber)}.stat-cyan::before{background:var(--cyan)}.stat-teal::before{background:var(--teal)}.stat-pink::before{background:var(--pink)}
+.stat-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.stat-icon svg{width:15px;height:15px}
+.stat-icon-accent{background:var(--accent-bg);color:var(--accent2)}.stat-icon-green{background:var(--green-bg);color:var(--green)}.stat-icon-red{background:var(--red-bg);color:var(--red)}.stat-icon-amber{background:var(--amber-bg);color:var(--amber)}.stat-icon-cyan{background:var(--cyan-bg);color:var(--cyan)}.stat-icon-teal{background:var(--teal-bg);color:var(--teal)}.stat-icon-pink{background:var(--pink-bg);color:var(--pink)}
+.stat-label{font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px}
+.stat-value{font-size:21px;font-weight:800;letter-spacing:-0.04em;color:var(--text);line-height:1}
+.stat-sub{font-size:11.5px;color:var(--text3);margin-top:4px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 18px;font-size:10.5px;font-weight:600;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);letter-spacing:0.05em;text-transform:uppercase}
+td{padding:11px 18px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text2)}
+td strong{color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.015)}
+.tag{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:0.02em}
+.tag-gas{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(59,130,246,0.2)}
+.tag-eth{background:var(--green-bg);color:var(--green);border:1px solid rgba(34,197,94,0.2)}
+.tag-die{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(245,158,11,0.2)}
+.tag-gna{background:var(--teal-bg);color:var(--teal);border:1px solid rgba(20,184,166,0.2)}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:72px 20px;text-align:center}
+.empty-icon{width:68px;height:68px;border-radius:18px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+.empty-icon svg{width:26px;height:26px;color:var(--text3)}
+.empty-title{font-size:17px;font-weight:700;letter-spacing:-0.02em;color:var(--text)}
+.empty-desc{font-size:13px;color:var(--text3);max-width:280px;line-height:1.6}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.6);animation:modalIn 0.18s ease}
+@keyframes modalIn{from{transform:translateY(10px) scale(0.98);opacity:0}to{transform:none;opacity:1}}
+.modal-header{padding:22px 22px 0;display:flex;align-items:flex-start;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:700;letter-spacing:-0.02em}
+.modal-sub{font-size:12.5px;color:var(--text3);margin-top:2px}
+.modal-close{background:var(--bg3);border:1px solid var(--border);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--text2);flex-shrink:0;transition:all 0.12s}
+.modal-close:hover{background:var(--bg4);color:var(--text)}
+.modal-body{padding:18px 22px 4px;display:flex;flex-direction:column;gap:13px}
+.modal-footer{padding:14px 22px 22px;display:flex;gap:8px;justify-content:flex-end}
+.modal-section{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:7px;margin-bottom:0}
+.field label{display:block;font-size:10.5px;font-weight:600;color:var(--text3);margin-bottom:6px;letter-spacing:0.05em;text-transform:uppercase}
+.field input,.field select,.field textarea{width:100%;padding:8px 12px;border:1px solid var(--border2);border-radius:7px;font-size:13px;font-family:var(--font);background:var(--bg3);color:var(--text);outline:none;transition:border-color 0.14s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
+.field input::placeholder{color:var(--text3)}
+.field select option{background:var(--bg3)}
+.field textarea{resize:vertical;min-height:60px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--text3);pointer-events:none}
+.search-input{padding:7px 11px 7px 30px;border:1px solid var(--border2);border-radius:7px;font-size:13px;font-family:var(--font);background:var(--bg3);color:var(--text);outline:none;width:200px;transition:border-color 0.14s}
+.search-input:focus{border-color:var(--accent)}
+.search-input::placeholder{color:var(--text3)}
+.posto-avatar{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;letter-spacing:-0.02em}
+.chart-wrap{padding:18px}
+.abast-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:11px;margin-bottom:18px}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--bg4);border:1px solid var(--border2);color:var(--text);padding:11px 16px;border-radius:10px;font-size:13px;font-weight:500;display:none;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.toast.show{display:flex;align-items:center;gap:8px;animation:toastIn 0.22s ease}
+@keyframes toastIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.toast-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+.divider{height:1px;background:var(--border)}
+.price-val{font-size:13.5px;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.fuel-tabs{display:flex;gap:4px;flex-wrap:wrap}
+.fuel-tab{padding:5px 11px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);transition:all 0.12s;font-family:var(--font)}
+.fuel-tab:hover{background:var(--bg3);color:var(--text2)}
+.fuel-tab.active{background:var(--accent-bg);color:var(--accent2);border-color:var(--accent-border)}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
+.pill-accent{background:var(--accent-bg);color:var(--accent2);border:1px solid var(--accent-border)}
+.placa-badge{display:inline-flex;align-items:center;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:2px 7px;font-size:11.5px;font-weight:700;color:var(--text);letter-spacing:0.07em;font-family:monospace}
+
+/* VEICULOS */
+.veic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:13px}
+.veic-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:border-color 0.18s}
+.veic-card:hover{border-color:var(--border2)}
+.veic-card-header{padding:14px 15px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--border)}
+.veic-avatar{width:42px;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.veic-avatar svg{width:20px;height:20px}
+.veic-card-body{padding:12px 15px;display:flex;flex-direction:column;gap:9px}
+.veic-stat-row{display:flex;justify-content:space-between;align-items:center}
+.veic-stat-label{font-size:12px;color:var(--text3)}
+.veic-stat-val{font-size:13px;font-weight:700;color:var(--text)}
+.veic-card-footer{padding:10px 15px;border-top:1px solid var(--border);display:flex;gap:6px}
+.media-bar{height:3px;border-radius:2px;background:var(--border2);overflow:hidden;margin-top:3px}
+.media-bar-fill{height:100%;border-radius:2px;transition:width 0.4s ease}
+
+/* MOTORISTAS */
+.mot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:13px}
+.mot-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:border-color 0.18s;display:flex;flex-direction:column}
+.mot-card:hover{border-color:var(--border2)}
+.mot-card-header{padding:14px 15px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.mot-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;letter-spacing:-0.02em}
+.mot-card-body{padding:12px 15px;display:flex;flex-direction:column;gap:8px;flex:1}
+.mot-info-row{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text2)}
+.mot-info-row svg{width:13px;height:13px;color:var(--text3);flex-shrink:0}
+.mot-card-footer{padding:10px 15px;border-top:1px solid var(--border);display:flex;gap:6px}
+.cnh-badge{display:inline-flex;align-items:center;gap:5px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:5px;padding:3px 8px;font-size:11px;font-weight:700;color:var(--accent2)}
+
+/* FILTER SELECT */
+select.filter-sel{padding:7px 11px;border:1px solid var(--border2);border-radius:7px;font-size:13px;font-family:var(--font);background:var(--bg3);color:var(--text2);outline:none;cursor:pointer;transition:border-color 0.14s}
+select.filter-sel:focus{border-color:var(--accent)}
+select.filter-sel option{background:var(--bg3)}
+
+@media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}.abast-summary{grid-template-columns:repeat(2,1fr)}}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-logo">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 5h12M10 19a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">FuelTracker</div>
+        <div class="brand-sub">Controle de preços</div>
+      </div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Principal</div>
+    <button class="nav-item active" data-page="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-item" data-page="postos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5V20a1 1 0 0 0 1 1h5v-5h4v5h5a1 1 0 0 0 1-1V10.5"/><path d="M21 10.5L12 3 3 10.5"/></svg>
+      Postos
+    </button>
+    <div class="nav-section">Frota</div>
+    <button class="nav-item" data-page="motoristas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Motoristas
+    </button>
+    <button class="nav-item" data-page="veiculos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      Veículos
+    </button>
+    <button class="nav-item" data-page="abast">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Abastecimentos
+    </button>
+    <div class="nav-section">Análise</div>
+    <button class="nav-item" data-page="relatorio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+      Relatório de Médias
+    </button>
+    <div class="nav-section">Preços</div>
+    <button class="nav-item" data-page="precos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      Histórico
+    </button>
+    <button class="nav-item" data-page="evolucao">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Evolução
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="divider" style="margin-bottom:8px"></div>
+    <button class="nav-item" id="btn-sair">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sair
+    </button>
+  </div>
+</aside>
+
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <section id="page-dashboard">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="page-title">Dashboard</span>
+        <span class="page-badge" id="dash-badge" style="display:none"></span>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary" onclick="openModal('modal-preco')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Registrar Preço
+        </button>
+        <button class="btn btn-primary" onclick="openModal('modal-posto')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5V20a1 1 0 0 0 1 1h5v-5h4v5h5a1 1 0 0 0 1-1V10.5"/><path d="M21 10.5L12 3 3 10.5"/></svg>
+          Novo Posto
+        </button>
+      </div>
+    </div>
+    <div class="content">
+      <div id="dash-empty" class="empty-state">
+        <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10.5V20a1 1 0 0 0 1 1h5v-5h4v5h5a1 1 0 0 0 1-1V10.5"/><path d="M21 10.5L12 3 3 10.5"/></svg></div>
+        <div class="empty-title">Bem-vindo ao FuelTracker</div>
+        <div class="empty-desc">Cadastre postos, motoristas e veículos para começar a monitorar preços e consumo.</div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn btn-primary" onclick="openModal('modal-posto')">Novo Posto</button>
+          <button class="btn btn-secondary" onclick="showPage('motoristas')">Cadastrar Motorista</button>
+        </div>
+      </div>
+      <div id="dash-main" style="display:none">
+        <div class="stats-grid" id="dash-stats"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">Preços mais recentes</div><div class="card-sub">Última atualização por posto</div></div></div>
+            <table><thead><tr><th>Posto</th><th>Combustível</th><th>Preço</th><th>Data</th></tr></thead><tbody id="dash-tbody"></tbody></table>
+          </div>
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">Média por veículo</div><div class="card-sub">km/L calculado nos abastecimentos</div></div></div>
+            <table><thead><tr><th>Placa</th><th>Motorista atual</th><th>Média</th><th>Abast.</th></tr></thead><tbody id="dash-veic-tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- POSTOS -->
+  <section id="page-postos" class="hidden">
+    <div class="topbar">
+      <div class="topbar-left"><span class="page-title">Postos</span></div>
+      <div class="topbar-actions">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="search" class="search-input" id="search-postos" placeholder="Buscar posto…" oninput="renderPostos()">
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-posto')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Novo Posto
+        </button>
+      </div>
+    </div>
+    <div class="content">
+      <div id="postos-empty" class="empty-state">
+        <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10.5V20a1 1 0 0 0 1 1h5v-5h4v5h5a1 1 0 0 0 1-1V10.5"/><path d="M21 10.5L12 3 3 10.5"/></svg></div>
+        <div class="empty-title">Nenhum posto ainda</div>
+        <div class="empty-desc">Adicione postos para começar a monitorar preços.</div>
+        <button class="btn btn-primary" style="margin-top:4px" onclick="openModal('modal-posto')">Adicionar posto</button>
+      </div>
+      <div class="card" id="postos-table" style="display:none">
+        <div class="card-header"><div class="card-title">Todos os postos</div><span class="pill pill-accent" id="postos-count">0</span></div>
+        <table><thead><tr><th>Nome</th><th>Localização</th><th>Bandeira</th><th>Combustíveis</th><th>Ações</th></tr></thead><tbody id="postos-tbody"></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOTORISTAS -->
+  <section id="page-motoristas" class="hidden">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="page-title">Motoristas</span>
+        <span class="page-badge" id="mot-badge" style="display:none"></span>
+      </div>
+      <div class="topbar-actions">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="search" class="search-input" id="search-mot" placeholder="Buscar motorista…" oninput="renderMotoristas()">
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-mot')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Novo Motorista
+        </button>
+      </div>
+    </div>
+    <div class="content">
+      <div id="mot-empty" class="empty-state">
+        <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="empty-title">Nenhum motorista cadastrado</div>
+        <div class="empty-desc">Cadastre motoristas para vincular nos abastecimentos e acompanhar o desempenho individual.</div>
+        <button class="btn btn-primary" style="margin-top:4px" onclick="openModal('modal-mot')">Cadastrar motorista</button>
+      </div>
+      <div id="mot-grid-wrap" style="display:none">
+        <div class="mot-grid" id="mot-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VEÍCULOS -->
+  <section id="page-veiculos" class="hidden">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="page-title">Veículos</span>
+        <span class="page-badge" id="veic-badge" style="display:none"></span>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary" onclick="openModal('modal-veic')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Novo Veículo
+        </button>
+      </div>
+    </div>
+    <div class="content">
+      <div id="veic-empty" class="empty-state">
+        <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+        <div class="empty-title">Nenhum veículo cadastrado</div>
+        <div class="empty-desc">Cadastre veículos com placa para acompanhar consumo e média km/L.</div>
+        <button class="btn btn-primary" style="margin-top:4px" onclick="openModal('modal-veic')">Cadastrar veículo</button>
+      </div>
+      <div id="veic-grid-wrap" style="display:none"><div class="veic-grid" id="veic-grid"></div></div>
+    </div>
+  </section>
+
+  <!-- ABASTECIMENTOS -->
+  <section id="page-abast" class="hidden">
+    <div class="topbar">
+      <div class="topbar-left"><span class="page-title">Abastecimentos</span></div>
+      <div class="topbar-actions">
+        <select class="filter-sel" id="filter-mot" onchange="renderAbast()">
+          <option value="">Todos os motoristas</option>
+        </select>
+        <select class="filter-sel" id="filter-veic" onchange="renderAbast()">
+          <option value="">Todos os veículos</option>
+        </select>
+        <button class="btn btn-primary" onclick="openModal('modal-abast')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Registrar Abastecimento
+        </button>
+      </div>
+    </div>
+    <div class="content">
+      <div id="abast-empty" class="empty-state">
+        <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div class="empty-title">Nenhum abastecimento</div>
+        <div class="empty-desc">Registre abastecimentos vinculando motorista e veículo para calcular consumo.</div>
+        <button class="btn btn-primary" style="margin-top:4px" onclick="openModal('modal-abast')">Registrar abastecimento</button>
+      </div>
+      <div id="abast-data" style="display:none">
+        <div class="abast-summary" id="abast-summary"></div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Histórico de abastecimentos</div></div>
+          <div style="overflow-x:auto">
+            <table style="min-width:900px">
+              <thead><tr><th>Data</th><th>Motorista</th><th>Veículo</th><th>Posto</th><th>Comb.</th><th>Litros</th><th>Preço/L</th><th>Total</th><th>KM</th><th>Média</th><th>Ações</th></tr></thead>
+              <tbody id="abast-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATÓRIO DE MÉDIAS -->
+  <section id="page-relatorio" class="hidden">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="page-title">Relatório de Médias</span>
+        <span class="page-badge" id="rel-badge" style="display:none"></span>
+      </div>
+      <div class="topbar-actions">
+        <select class="filter-sel" id="rel-filter-veic" onchange="renderRelatorio()">
+          <option value="">Todas as placas</option>
+        </select>
+        <select class="filter-sel" id="rel-filter-period" onchange="renderRelatorio()">
+          <option value="">Todo o período</option>
+          <option value="30">Últimos 30 dias</option>
+          <option value="60">Últimos 60 dias</option>
+          <option value="90">Últimos 90 dias</option>
+        </select>
+      </div>
+    </div>
+    <div class="content">
+      <div id="rel-empty" class="empty-state">
+        <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="empty-title">Sem dados para o relatório</div>
+        <div class="empty-desc">Registre abastecimentos com KM para calcular médias de consumo.</div>
+      </div>
+      <div id="rel-main" style="display:none">
+        <div id="rel-stats" class="stats-grid" style="grid-template-columns:repeat(4,1fr)"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Média por motorista</div><div class="card-sub">km/L médio — todos os veículos</div></div>
+            </div>
+            <table>
+              <thead><tr><th>Motorista</th><th>Abast. c/ KM</th><th>Total litros</th><th>Média km/L</th><th>Ranking</th></tr></thead>
+              <tbody id="rel-mot-tbody"></tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Média por veículo (placa)</div><div class="card-sub">km/L calculado por cada veículo</div></div>
+            </div>
+            <table>
+              <thead><tr><th>Placa</th><th>Modelo</th><th>Abast.</th><th>Média km/L</th><th>Último KM</th></tr></thead>
+              <tbody id="rel-veic-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Cruzamento: motorista × placa</div><div class="card-sub">Consumo de cada motorista em cada veículo que utilizou</div></div>
+          </div>
+          <div style="overflow-x:auto">
+            <table style="min-width:700px">
+              <thead><tr><th>Motorista</th><th>Placa</th><th>Modelo</th><th>Abastecimentos</th><th>Litros</th><th>KM rodado</th><th>Média km/L</th><th>Custo médio/km</th></tr></thead>
+              <tbody id="rel-cross-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PREÇOS -->
+  <section id="page-precos" class="hidden">
+    <div class="topbar">
+      <div class="topbar-left"><span class="page-title">Histórico de Preços</span></div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary" onclick="openModal('modal-preco')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Registrar Preço
+        </button>
+      </div>
+    </div>
+    <div class="content">
+      <div id="precos-empty" class="empty-state">
+        <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+        <div class="empty-title">Nenhum preço registrado</div>
+        <div class="empty-desc">Registre preços para monitorar variações ao longo do tempo.</div>
+        <button class="btn btn-primary" style="margin-top:4px" onclick="openModal('modal-preco')">Registrar preço</button>
+      </div>
+      <div class="card" id="precos-table" style="display:none">
+        <div class="card-header"><div class="card-title">Histórico de preços</div></div>
+        <table><thead><tr><th>Posto</th><th>Combustível</th><th>Preço</th><th>Data</th><th>Ações</th></tr></thead><tbody id="precos-tbody"></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVOLUÇÃO -->
+  <section id="page-evolucao" class="hidden">
+    <div class="topbar">
+      <div class="topbar-left"><span class="page-title">Evolução de Preços</span></div>
+      <div class="topbar-actions"><div class="fuel-tabs" id="fuel-tabs"></div></div>
+    </div>
+    <div class="content">
+      <div id="evolucao-empty" class="empty-state">
+        <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="empty-title">Dados insuficientes</div>
+        <div class="empty-desc">Registre preços em datas diferentes para visualizar a evolução no gráfico.</div>
+      </div>
+      <div id="evolucao-chart-wrap" style="display:none">
+        <div class="card">
+          <div class="card-header"><div><div class="card-title" id="evolucao-title">Evolução de preços</div><div class="card-sub">Variação por posto ao longo do tempo</div></div></div>
+          <div class="chart-wrap"><canvas id="evolucao-canvas" height="320"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- MODAL POSTO -->
+<div class="modal-backdrop" id="modal-posto">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title" id="modal-posto-title">Cadastrar posto</div><div class="modal-sub">Informe os dados do posto de combustível</div></div>
+      <button class="modal-close" onclick="closeModal('modal-posto')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="posto-edit-id">
+      <div class="field"><label>Nome do posto *</label><input type="text" id="posto-nome" placeholder="Ex: Posto São Paulo"></div>
+      <div class="field-row">
+        <div class="field"><label>Bandeira</label><select id="posto-bandeira"><option>Sem bandeira</option><option>Shell</option><option>Petrobras BR</option><option>Ipiranga</option><option>Raízen</option><option>Vibra</option><option>Ale</option><option>Outro</option></select></div>
+        <div class="field"><label>Telefone</label><input type="text" id="posto-tel" placeholder="(35) 99999-9999"></div>
+      </div>
+      <div class="field"><label>Endereço</label><input type="text" id="posto-end" placeholder="Rua, número, bairro"></div>
+      <div class="field-row">
+        <div class="field"><label>Cidade</label><input type="text" id="posto-cidade" placeholder="Lavras"></div>
+        <div class="field"><label>Estado</label><select id="posto-estado"><option>MG</option><option>SP</option><option>RJ</option><option>PR</option><option>RS</option><option>SC</option><option>BA</option><option>GO</option><option>DF</option><option>ES</option><option>CE</option><option>PE</option><option>AM</option><option>PA</option><option>MT</option></select></div>
+      </div>
+      <div class="field">
+        <label>Combustíveis disponíveis</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px" id="fuel-checks">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="Gasolina Comum" style="accent-color:var(--accent)"> Gasolina Comum</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="Gasolina Aditivada" style="accent-color:var(--accent)"> Gasolina Aditivada</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="Etanol" style="accent-color:var(--accent)"> Etanol</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="Diesel" style="accent-color:var(--accent)"> Diesel</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="Diesel S-10" style="accent-color:var(--accent)"> Diesel S-10</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="GNV" style="accent-color:var(--accent)"> GNV</label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-posto')">Cancelar</button>
+      <button class="btn btn-primary" onclick="savePosto()">Salvar posto</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MOTORISTA -->
+<div class="modal-backdrop" id="modal-mot">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title" id="modal-mot-title">Cadastrar motorista</div><div class="modal-sub">Dados pessoais e habilitação do motorista</div></div>
+      <button class="modal-close" onclick="closeModal('modal-mot')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="mot-edit-id">
+      <div class="modal-section">Dados pessoais</div>
+      <div class="field"><label>Nome completo *</label><input type="text" id="mot-nome" placeholder="João da Silva"></div>
+      <div class="field-row">
+        <div class="field"><label>CPF</label><input type="text" id="mot-cpf" placeholder="000.000.000-00" maxlength="14"></div>
+        <div class="field"><label>Telefone *</label><input type="text" id="mot-tel" placeholder="(35) 99999-9999"></div>
+      </div>
+      <div class="field"><label>E-mail</label><input type="email" id="mot-email" placeholder="joao@email.com"></div>
+      <div class="modal-section" style="margin-top:4px">Habilitação (CNH)</div>
+      <div class="field-row">
+        <div class="field"><label>Número da CNH</label><input type="text" id="mot-cnh" placeholder="00000000000" maxlength="11"></div>
+        <div class="field"><label>Categoria</label><select id="mot-cat"><option value="">— Selecione —</option><option>A</option><option>B</option><option>AB</option><option>C</option><option>D</option><option>E</option><option>ACC</option></select></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Validade CNH</label><input type="date" id="mot-cnh-val"></div>
+        <div class="field"><label>Status</label><select id="mot-status"><option value="ativo">Ativo</option><option value="inativo">Inativo</option><option value="ferias">Férias</option><option value="afastado">Afastado</option></select></div>
+      </div>
+      <div class="field"><label>Observações</label><textarea id="mot-obs" placeholder="Observações gerais…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-mot')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveMot()">Salvar motorista</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VEÍCULO -->
+<div class="modal-backdrop" id="modal-veic">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title" id="modal-veic-title">Cadastrar veículo</div><div class="modal-sub">Identificação e dados do veículo</div></div>
+      <button class="modal-close" onclick="closeModal('modal-veic')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="veic-edit-id">
+      <div class="modal-section">Identificação</div>
+      <div class="field-row">
+        <div class="field"><label>Placa *</label><input type="text" id="veic-placa" placeholder="ABC-1234" maxlength="8" style="text-transform:uppercase;letter-spacing:0.06em;font-weight:700"></div>
+        <div class="field"><label>Apelido / Modelo</label><input type="text" id="veic-modelo" placeholder="Gol, Sprinter…"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Marca</label><input type="text" id="veic-marca" placeholder="Volkswagen, Ford…"></div>
+        <div class="field"><label>Ano</label><input type="number" id="veic-ano" placeholder="2022" min="1990" max="2030"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Cor</label><input type="text" id="veic-cor" placeholder="Prata, Branco…"></div>
+        <div class="field"><label>Renavam</label><input type="text" id="veic-renavam" placeholder="00000000000" maxlength="11"></div>
+      </div>
+      <div class="modal-section" style="margin-top:4px">Combustível e KM</div>
+      <div class="field-row">
+        <div class="field"><label>Combustível padrão</label><select id="veic-comb"><option>Gasolina Comum</option><option>Gasolina Aditivada</option><option>Etanol</option><option>Diesel</option><option>Diesel S-10</option><option>GNV</option><option>Flex</option></select></div>
+        <div class="field"><label>KM atual</label><input type="number" id="veic-km" placeholder="85000" min="0"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-veic')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveVeic()">Salvar veículo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PREÇO -->
+<div class="modal-backdrop" id="modal-preco">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title">Registrar preço</div><div class="modal-sub">Informe o preço atual do combustível</div></div>
+      <button class="modal-close" onclick="closeModal('modal-preco')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="preco-edit-id">
+      <div class="field"><label>Posto *</label><select id="preco-posto"></select></div>
+      <div class="field-row">
+        <div class="field"><label>Combustível *</label><select id="preco-tipo"><option>Gasolina Comum</option><option>Gasolina Aditivada</option><option>Etanol</option><option>Diesel</option><option>Diesel S-10</option><option>GNV</option></select></div>
+        <div class="field"><label>Preço (R$/L) *</label><input type="number" id="preco-valor" step="0.001" min="0" placeholder="6.299"></div>
+      </div>
+      <div class="field"><label>Data</label><input type="date" id="preco-data"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-preco')">Cancelar</button>
+      <button class="btn btn-primary" onclick="savePreco()">Registrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ABASTECIMENTO -->
+<div class="modal-backdrop" id="modal-abast">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title">Registrar abastecimento</div><div class="modal-sub">Vincule motorista e veículo para calcular média</div></div>
+      <button class="modal-close" onclick="closeModal('modal-abast')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="abast-edit-id">
+      <div class="modal-section">Motorista e veículo</div>
+      <div class="field-row">
+        <div class="field"><label>Motorista *</label><select id="abast-mot"></select></div>
+        <div class="field"><label>Veículo *</label><select id="abast-veic" onchange="onAbastVeicChange()"></select></div>
+      </div>
+      <div class="modal-section" style="margin-top:4px">Posto e combustível</div>
+      <div class="field-row">
+        <div class="field"><label>Posto *</label><select id="abast-posto"></select></div>
+        <div class="field"><label>Combustível *</label><select id="abast-tipo"><option>Gasolina Comum</option><option>Gasolina Aditivada</option><option>Etanol</option><option>Diesel</option><option>Diesel S-10</option><option>GNV</option></select></div>
+      </div>
+      <div class="modal-section" style="margin-top:4px">Abastecimento</div>
+      <div class="field-row3">
+        <div class="field"><label>Litros *</label><input type="number" id="abast-litros" step="0.01" min="0" placeholder="40.00"></div>
+        <div class="field"><label>Preço/L *</label><input type="number" id="abast-preco" step="0.001" min="0" placeholder="6.299"></div>
+        <div class="field"><label>Data</label><input type="date" id="abast-data"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>KM atual</label><input type="number" id="abast-km" min="0" placeholder="85000"></div>
+        <div class="field"><label>KM anterior <span style="color:var(--text3);font-size:10px;font-weight:400">(auto)</span></label><input type="number" id="abast-km-ant" min="0" placeholder="Último KM registrado" style="opacity:0.65;cursor:not-allowed" readonly></div>
+      </div>
+      <div class="field"><label>Observações</label><textarea id="abast-obs" placeholder="Tanque cheio, promoção…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-abast')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveAbast()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="toast-dot"></span><span id="toast-msg"></span></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const S={
+  postos:JSON.parse(localStorage.getItem('ft_postos')||'[]'),
+  precos:JSON.parse(localStorage.getItem('ft_precos')||'[]'),
+  abasts:JSON.parse(localStorage.getItem('ft_abasts')||'[]'),
+  veics:JSON.parse(localStorage.getItem('ft_veics')||'[]'),
+  mots:JSON.parse(localStorage.getItem('ft_mots')||'[]'),
+};
+const save=()=>{
+  localStorage.setItem('ft_postos',JSON.stringify(S.postos));
+  localStorage.setItem('ft_precos',JSON.stringify(S.precos));
+  localStorage.setItem('ft_abasts',JSON.stringify(S.abasts));
+  localStorage.setItem('ft_veics',JSON.stringify(S.veics));
+  localStorage.setItem('ft_mots',JSON.stringify(S.mots));
+};
+let chartInst=null;
+let activeFuel='Gasolina Comum';
+
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const fmtBRL=v=>'R$ '+Number(v).toFixed(3).replace('.',',');
+const fmtBRL2=v=>'R$ '+Number(v).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+const today=()=>new Date().toISOString().slice(0,10);
+const fmtDate=s=>s?new Date(s+'T12:00').toLocaleDateString('pt-BR'):'—';
+const FUEL_TAG={'Gasolina Comum':'tag-gas','Gasolina Aditivada':'tag-gas','Etanol':'tag-eth','Diesel':'tag-die','Diesel S-10':'tag-die','GNV':'tag-gna'};
+const PALETTE=['#6c63ff','#22c55e','#f59e0b','#ef4444','#14b8a6','#3b82f6','#ec4899','#8b5cf6'];
+const AVATAR_COLORS=['#6c63ff','#22c55e','#f59e0b','#14b8a6','#3b82f6','#ec4899','#8b5cf6','#f97316'];
+const STATUS_COLORS={ativo:{bg:'rgba(34,197,94,0.12)',color:'#22c55e'},inativo:{bg:'rgba(239,68,68,0.12)',color:'#ef4444'},ferias:{bg:'rgba(245,158,11,0.12)',color:'#f59e0b'},afastado:{bg:'rgba(148,163,184,0.12)',color:'#94a3b8'}};
+const STATUS_LABEL={ativo:'Ativo',inativo:'Inativo',ferias:'Férias',afastado:'Afastado'};
+
+function initials(n){return(n||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()}
+function hashColor(id){let h=0;for(const c of(id||'x'))h=(h*31+c.charCodeAt(0))&0xffffffff;return AVATAR_COLORS[Math.abs(h)%AVATAR_COLORS.length]}
+function postoName(id){return(S.postos.find(p=>p.id===id)||{}).nome||'?'}
+function veicPlaca(id){return(S.veics.find(v=>v.id===id)||{}).placa||'?'}
+function motName(id){return(S.mots.find(m=>m.id===id)||{}).nome||'—'}
+function fuelTag(t){return`<span class="tag ${FUEL_TAG[t]||'tag-gas'}">${t}</span>`}
+function placaBadge(placa){return`<span class="placa-badge">${placa||'—'}</span>`}
+
+function toast(msg){
+  document.getElementById('toast-msg').textContent=msg;
+  const el=document.getElementById('toast');
+  el.classList.add('show');clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+function calcMedia(veicId){
+  const list=[...S.abasts.filter(a=>a.veicId===veicId&&a.km&&a.kmAnt&&a.km>a.kmAnt)];
+  if(!list.length)return null;
+  const totalKm=list.reduce((s,a)=>s+(a.km-a.kmAnt),0);
+  const totalL=list.reduce((s,a)=>s+a.litros,0);
+  return totalKm>0&&totalL>0?totalKm/totalL:null;
+}
+function lastKm(veicId){
+  const s=[...S.abasts.filter(a=>a.veicId===veicId&&a.km)].sort((a,b)=>b.data.localeCompare(a.data));
+  return s.length?s[0].km:null;
+}
+function calcMediaMot(motId){
+  const list=S.abasts.filter(a=>a.motId===motId&&a.media);
+  if(!list.length)return null;
+  return list.reduce((s,a)=>s+a.media,0)/list.length;
+}
+
+// NAV
+const pages=['dashboard','postos','motoristas','veiculos','abast','precos','evolucao'];
+function showPage(id){
+  pages.forEach(p=>{
+    document.getElementById('page-'+p).classList.toggle('hidden',p!==id);
+    const btn=document.querySelector(`[data-page="${p}"]`);
+    if(btn)btn.classList.toggle('active',p===id);
+  });
+  if(id==='dashboard')renderDashboard();
+  if(id==='postos')renderPostos();
+  if(id==='motoristas')renderMotoristas();
+  if(id==='veiculos')renderVeiculos();
+  if(id==='abast'){fillAbastSelects();renderAbast();}
+  if(id==='precos')renderPrecos();
+  if(id==='evolucao')renderEvolucao();
+}
+document.querySelectorAll('.nav-item[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+document.getElementById('btn-sair').addEventListener('click',()=>toast('Dados salvos. Até logo!'));
+
+// MODALS
+function openModal(id){
+  if(id==='modal-preco')fillPostoSelect();
+  if(id==='modal-abast'){fillAbastSelects();}
+  document.getElementById(id).classList.add('open');
+  if(id==='modal-preco'&&!document.getElementById('preco-edit-id').value)document.getElementById('preco-data').value=today();
+  if(id==='modal-abast'&&!document.getElementById('abast-edit-id').value)document.getElementById('abast-data').value=today();
+}
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+  if(id==='modal-posto'){
+    document.getElementById('posto-edit-id').value='';
+    document.getElementById('modal-posto-title').textContent='Cadastrar posto';
+    ['posto-nome','posto-tel','posto-end','posto-cidade'].forEach(f=>document.getElementById(f).value='');
+    document.getElementById('posto-bandeira').selectedIndex=0;
+    document.getElementById('posto-estado').value='MG';
+    document.querySelectorAll('#fuel-checks input').forEach(c=>c.checked=false);
+  }
+  if(id==='modal-mot'){
+    document.getElementById('mot-edit-id').value='';
+    document.getElementById('modal-mot-title').textContent='Cadastrar motorista';
+    ['mot-nome','mot-cpf','mot-tel','mot-email','mot-cnh','mot-cnh-val','mot-obs'].forEach(f=>document.getElementById(f).value='');
+    document.getElementById('mot-cat').selectedIndex=0;
+    document.getElementById('mot-status').value='ativo';
+  }
+  if(id==='modal-veic'){
+    document.getElementById('veic-edit-id').value='';
+    document.getElementById('modal-veic-title').textContent='Cadastrar veículo';
+    ['veic-placa','veic-modelo','veic-marca','veic-cor','veic-renavam','veic-km','veic-ano'].forEach(f=>document.getElementById(f).value='');
+    document.getElementById('veic-comb').selectedIndex=0;
+  }
+  if(id==='modal-preco'){document.getElementById('preco-edit-id').value='';document.getElementById('preco-valor').value='';document.getElementById('preco-data').value='';}
+  if(id==='modal-abast'){
+    document.getElementById('abast-edit-id').value='';
+    ['abast-litros','abast-preco','abast-km','abast-km-ant','abast-obs'].forEach(f=>document.getElementById(f).value='');
+    document.getElementById('abast-data').value='';
+  }
+}
+document.querySelectorAll('.modal-backdrop').forEach(bd=>bd.addEventListener('click',e=>{if(e.target===bd)bd.classList.remove('open');}));
+
+function fillPostoSelect(){
+  const sel=document.getElementById('preco-posto');
+  const cur=sel.value;
+  sel.innerHTML=S.postos.length?S.postos.map(p=>`<option value="${p.id}">${p.nome}</option>`).join(''):'<option value="">— Nenhum posto —</option>';
+  if(cur)sel.value=cur;
+}
+function fillAbastSelects(){
+  const sm=document.getElementById('abast-mot');
+  const curm=sm.value;
+  sm.innerHTML=S.mots.length?'<option value="">— Selecione —</option>'+S.mots.filter(m=>m.status==='ativo'||m.status==='ferias').map(m=>`<option value="${m.id}">${m.nome}</option>`).join(''):'<option value="">— Nenhum motorista —</option>';
+  if(curm)sm.value=curm;
+
+  const sv=document.getElementById('abast-veic');
+  const curv=sv.value;
+  sv.innerHTML=S.veics.length?'<option value="">— Selecione —</option>'+S.veics.map(v=>`<option value="${v.id}">${v.placa}${v.modelo?' — '+v.modelo:''}</option>`).join(''):'<option value="">— Nenhum veículo —</option>';
+  if(curv)sv.value=curv;
+
+  const sp=document.getElementById('abast-posto');
+  const curp=sp.value;
+  sp.innerHTML=S.postos.length?S.postos.map(p=>`<option value="${p.id}">${p.nome}</option>`).join(''):'<option value="">— Nenhum posto —</option>';
+  if(curp)sp.value=curp;
+
+  // filter selects na página de abastecimentos
+  const fm=document.getElementById('filter-mot');
+  if(fm){const c=fm.value;fm.innerHTML='<option value="">Todos os motoristas</option>'+S.mots.map(m=>`<option value="${m.id}">${m.nome}</option>`).join('');if(c)fm.value=c;}
+  const fv=document.getElementById('filter-veic');
+  if(fv){const c=fv.value;fv.innerHTML='<option value="">Todos os veículos</option>'+S.veics.map(v=>`<option value="${v.id}">${v.placa}${v.modelo?' — '+v.modelo:''}</option>`).join('');if(c)fv.value=c;}
+}
+function onAbastVeicChange(){
+  const veicId=document.getElementById('abast-veic').value;
+  const v=S.veics.find(x=>x.id===veicId);
+  if(v){
+    if(v.comb&&v.comb!=='Flex')document.getElementById('abast-tipo').value=v.comb;
+    const lkm=lastKm(veicId);
+    document.getElementById('abast-km-ant').value=lkm||'';
+  }
+}
+
+// POSTO CRUD
+function savePosto(){
+  const nome=document.getElementById('posto-nome').value.trim();
+  if(!nome){alert('Informe o nome.');return;}
+  const fuels=[...document.querySelectorAll('#fuel-checks input:checked')].map(c=>c.value);
+  const data={nome,bandeira:document.getElementById('posto-bandeira').value,tel:document.getElementById('posto-tel').value.trim(),end:document.getElementById('posto-end').value.trim(),cidade:document.getElementById('posto-cidade').value.trim(),estado:document.getElementById('posto-estado').value,fuels};
+  const eid=document.getElementById('posto-edit-id').value;
+  if(eid){const i=S.postos.findIndex(p=>p.id===eid);S.postos[i]={...S.postos[i],...data};toast('Posto atualizado!');}
+  else{S.postos.push({id:uid(),...data});toast('Posto cadastrado!');}
+  save();closeModal('modal-posto');renderDashboard();renderPostos();
+}
+function editPosto(id){
+  const p=S.postos.find(x=>x.id===id);
+  document.getElementById('posto-edit-id').value=id;
+  document.getElementById('modal-posto-title').textContent='Editar posto';
+  document.getElementById('posto-nome').value=p.nome;
+  document.getElementById('posto-bandeira').value=p.bandeira;
+  document.getElementById('posto-tel').value=p.tel||'';
+  document.getElementById('posto-end').value=p.end||'';
+  document.getElementById('posto-cidade').value=p.cidade||'';
+  document.getElementById('posto-estado').value=p.estado||'MG';
+  document.querySelectorAll('#fuel-checks input').forEach(c=>c.checked=(p.fuels||[]).includes(c.value));
+  openModal('modal-posto');
+}
+function deletePosto(id){
+  if(!confirm('Excluir este posto?'))return;
+  S.postos=S.postos.filter(p=>p.id!==id);S.precos=S.precos.filter(p=>p.postoId!==id);S.abasts=S.abasts.filter(a=>a.postoId!==id);
+  save();renderPostos();renderDashboard();toast('Posto excluído.');
+}
+
+// MOTORISTA CRUD
+function saveMot(){
+  const nome=document.getElementById('mot-nome').value.trim();
+  if(!nome){alert('Informe o nome do motorista.');return;}
+  const data={nome,cpf:document.getElementById('mot-cpf').value.trim(),tel:document.getElementById('mot-tel').value.trim(),email:document.getElementById('mot-email').value.trim(),cnh:document.getElementById('mot-cnh').value.trim(),cat:document.getElementById('mot-cat').value,cnhVal:document.getElementById('mot-cnh-val').value,status:document.getElementById('mot-status').value,obs:document.getElementById('mot-obs').value.trim()};
+  const eid=document.getElementById('mot-edit-id').value;
+  if(eid){const i=S.mots.findIndex(m=>m.id===eid);S.mots[i]={...S.mots[i],...data};toast('Motorista atualizado!');}
+  else{S.mots.push({id:uid(),...data});toast('Motorista cadastrado!');}
+  save();closeModal('modal-mot');renderMotoristas();renderDashboard();fillAbastSelects();
+}
+function editMot(id){
+  const m=S.mots.find(x=>x.id===id);
+  document.getElementById('mot-edit-id').value=id;
+  document.getElementById('modal-mot-title').textContent='Editar motorista';
+  document.getElementById('mot-nome').value=m.nome;
+  document.getElementById('mot-cpf').value=m.cpf||'';
+  document.getElementById('mot-tel').value=m.tel||'';
+  document.getElementById('mot-email').value=m.email||'';
+  document.getElementById('mot-cnh').value=m.cnh||'';
+  document.getElementById('mot-cat').value=m.cat||'';
+  document.getElementById('mot-cnh-val').value=m.cnhVal||'';
+  document.getElementById('mot-status').value=m.status||'ativo';
+  document.getElementById('mot-obs').value=m.obs||'';
+  openModal('modal-mot');
+}
+function deleteMot(id){
+  if(!confirm('Excluir este motorista?'))return;
+  S.mots=S.mots.filter(m=>m.id!==id);
+  save();renderMotoristas();renderDashboard();toast('Motorista excluído.');
+}
+
+// VEÍCULO CRUD
+function saveVeic(){
+  const placa=document.getElementById('veic-placa').value.trim().toUpperCase();
+  if(!placa){alert('Informe a placa.');return;}
+  const data={placa,modelo:document.getElementById('veic-modelo').value.trim(),marca:document.getElementById('veic-marca').value.trim(),ano:document.getElementById('veic-ano').value||'',cor:document.getElementById('veic-cor').value.trim(),renavam:document.getElementById('veic-renavam').value.trim(),comb:document.getElementById('veic-comb').value,kmInicial:parseInt(document.getElementById('veic-km').value)||0};
+  const eid=document.getElementById('veic-edit-id').value;
+  if(eid){const i=S.veics.findIndex(v=>v.id===eid);S.veics[i]={...S.veics[i],...data};toast('Veículo atualizado!');}
+  else{S.veics.push({id:uid(),...data});toast('Veículo cadastrado!');}
+  save();closeModal('modal-veic');renderVeiculos();renderDashboard();fillAbastSelects();
+}
+function editVeic(id){
+  const v=S.veics.find(x=>x.id===id);
+  document.getElementById('veic-edit-id').value=id;
+  document.getElementById('modal-veic-title').textContent='Editar veículo';
+  document.getElementById('veic-placa').value=v.placa;
+  document.getElementById('veic-modelo').value=v.modelo||'';
+  document.getElementById('veic-marca').value=v.marca||'';
+  document.getElementById('veic-ano').value=v.ano||'';
+  document.getElementById('veic-cor').value=v.cor||'';
+  document.getElementById('veic-renavam').value=v.renavam||'';
+  document.getElementById('veic-comb').value=v.comb||'Gasolina Comum';
+  document.getElementById('veic-km').value=v.kmInicial||'';
+  openModal('modal-veic');
+}
+function deleteVeic(id){
+  if(!confirm('Excluir este veículo?'))return;
+  S.veics=S.veics.filter(v=>v.id!==id);S.abasts=S.abasts.filter(a=>a.veicId!==id);
+  save();renderVeiculos();renderDashboard();toast('Veículo excluído.');
+}
+
+// PREÇO CRUD
+function savePreco(){
+  const postoId=document.getElementById('preco-posto').value;
+  const valor=parseFloat(document.getElementById('preco-valor').value);
+  if(!postoId){alert('Selecione um posto.');return;}
+  if(!valor||valor<=0){alert('Informe um preço válido.');return;}
+  const data={postoId,tipo:document.getElementById('preco-tipo').value,valor,data:document.getElementById('preco-data').value||today()};
+  const eid=document.getElementById('preco-edit-id').value;
+  if(eid){const i=S.precos.findIndex(p=>p.id===eid);S.precos[i]={...S.precos[i],...data};toast('Preço atualizado!');}
+  else{S.precos.push({id:uid(),...data});toast('Preço registrado!');}
+  save();closeModal('modal-preco');renderPrecos();renderDashboard();
+}
+function editPreco(id){
+  const p=S.precos.find(x=>x.id===id);
+  fillPostoSelect();
+  document.getElementById('preco-edit-id').value=id;
+  document.getElementById('preco-posto').value=p.postoId;
+  document.getElementById('preco-tipo').value=p.tipo;
+  document.getElementById('preco-valor').value=p.valor;
+  document.getElementById('preco-data').value=p.data;
+  openModal('modal-preco');
+}
+function deletePreco(id){
+  if(!confirm('Excluir este registro?'))return;
+  S.precos=S.precos.filter(p=>p.id!==id);
+  save();renderPrecos();renderDashboard();toast('Registro excluído.');
+}
+
+// ABAST CRUD
+function saveAbast(){
+  const motId=document.getElementById('abast-mot').value;
+  const veicId=document.getElementById('abast-veic').value;
+  const postoId=document.getElementById('abast-posto').value;
+  const litros=parseFloat(document.getElementById('abast-litros').value);
+  const preco=parseFloat(document.getElementById('abast-preco').value);
+  if(!motId){alert('Selecione um motorista.');return;}
+  if(!veicId){alert('Selecione um veículo.');return;}
+  if(!postoId){alert('Selecione um posto.');return;}
+  if(!litros||litros<=0){alert('Informe os litros.');return;}
+  if(!preco||preco<=0){alert('Informe o preço por litro.');return;}
+  const kmAtual=parseInt(document.getElementById('abast-km').value)||null;
+  const kmAnt=parseInt(document.getElementById('abast-km-ant').value)||null;
+  const media=(kmAtual&&kmAnt&&kmAtual>kmAnt)?((kmAtual-kmAnt)/litros):null;
+  const data={motId,veicId,postoId,tipo:document.getElementById('abast-tipo').value,litros,preco,total:litros*preco,km:kmAtual,kmAnt,media,data:document.getElementById('abast-data').value||today(),obs:document.getElementById('abast-obs').value.trim()};
+  const eid=document.getElementById('abast-edit-id').value;
+  if(eid){const i=S.abasts.findIndex(a=>a.id===eid);S.abasts[i]={...S.abasts[i],...data};}
+  else{S.abasts.push({id:uid(),...data});}
+  save();closeModal('modal-abast');renderAbast();renderVeiculos();renderMotoristas();renderDashboard();toast('Abastecimento salvo!');
+}
+function editAbast(id){
+  const a=S.abasts.find(x=>x.id===id);
+  fillAbastSelects();
+  document.getElementById('abast-edit-id').value=id;
+  document.getElementById('abast-mot').value=a.motId||'';
+  document.getElementById('abast-veic').value=a.veicId||'';
+  document.getElementById('abast-posto').value=a.postoId||'';
+  document.getElementById('abast-tipo').value=a.tipo;
+  document.getElementById('abast-litros').value=a.litros;
+  document.getElementById('abast-preco').value=a.preco;
+  document.getElementById('abast-km').value=a.km||'';
+  document.getElementById('abast-km-ant').value=a.kmAnt||'';
+  document.getElementById('abast-data').value=a.data;
+  document.getElementById('abast-obs').value=a.obs||'';
+  openModal('modal-abast');
+}
+function deleteAbast(id){
+  if(!confirm('Excluir este abastecimento?'))return;
+  S.abasts=S.abasts.filter(a=>a.id!==id);
+  save();renderAbast();renderVeiculos();renderMotoristas();toast('Excluído.');
+}
+
+// ── RENDERS ──────────────────────────────────────────────────────────────────
+function renderDashboard(){
+  const has=S.postos.length>0||S.mots.length>0||S.veics.length>0;
+  document.getElementById('dash-empty').style.display=has?'none':'';
+  document.getElementById('dash-main').style.display=has?'':'none';
+  const badge=document.getElementById('dash-badge');
+  badge.style.display=has?'':'none';
+  badge.textContent=`${S.postos.length} posto${S.postos.length!==1?'s':''} · ${S.mots.length} motorista${S.mots.length!==1?'s':''} · ${S.veics.length} veículo${S.veics.length!==1?'s':''}`;
+  if(!has)return;
+  const latest={};
+  S.precos.forEach(p=>{const k=p.postoId+'|'+p.tipo;if(!latest[k]||p.data>latest[k].data)latest[k]=p;});
+  const rows=Object.values(latest).sort((a,b)=>b.data.localeCompare(a.data));
+  const gasRows=rows.filter(r=>r.tipo==='Gasolina Comum');
+  const minGas=gasRows.length?Math.min(...gasRows.map(r=>r.valor)):null;
+  const totalGasto=S.abasts.reduce((s,a)=>s+a.total,0);
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="stat-card stat-accent"><div class="stat-icon stat-icon-accent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5V20a1 1 0 0 0 1 1h5v-5h4v5h5a1 1 0 0 0 1-1V10.5"/><path d="M21 10.5L12 3 3 10.5"/></svg></div><div class="stat-label">Postos</div><div class="stat-value">${S.postos.length}</div><div class="stat-sub">${rows.length} preços ativos</div></div>
+    <div class="stat-card stat-pink"><div class="stat-icon stat-icon-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="stat-label">Motoristas</div><div class="stat-value">${S.mots.length}</div><div class="stat-sub">${S.mots.filter(m=>m.status==='ativo').length} ativos</div></div>
+    <div class="stat-card stat-cyan"><div class="stat-icon stat-icon-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><div class="stat-label">Veículos</div><div class="stat-value">${S.veics.length}</div><div class="stat-sub">${S.abasts.length} abastecimentos</div></div>
+    <div class="stat-card stat-amber"><div class="stat-icon stat-icon-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-label">Total gasto</div><div class="stat-value" style="font-size:17px">${fmtBRL2(totalGasto)}</div><div class="stat-sub">${minGas?'Menor gasolina '+fmtBRL(minGas):''}</div></div>
+  `;
+  document.getElementById('dash-tbody').innerHTML=rows.slice(0,7).map(r=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="posto-avatar" style="background:${hashColor(r.postoId)}22;color:${hashColor(r.postoId)}">${initials(postoName(r.postoId))}</div><strong>${postoName(r.postoId)}</strong></div></td>
+      <td>${fuelTag(r.tipo)}</td>
+      <td><span class="price-val">${fmtBRL(r.valor)}</span></td>
+      <td style="color:var(--text3)">${fmtDate(r.data)}</td>
+    </tr>
+  `).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:22px">Nenhum preço ainda</td></tr>';
+  document.getElementById('dash-veic-tbody').innerHTML=S.veics.length?S.veics.map(v=>{
+    const m=calcMedia(v.id);
+    const abCnt=S.abasts.filter(a=>a.veicId===v.id).length;
+    const lastMot=S.abasts.filter(a=>a.veicId===v.id&&a.motId).sort((a,b)=>b.data.localeCompare(a.data))[0];
+    const motNm=lastMot?motName(lastMot.motId):'—';
+    return`<tr>
+      <td>${placaBadge(v.placa)}${v.modelo?`<span style="font-size:11px;color:var(--text3);margin-left:6px">${v.modelo}</span>`:''}</td>
+      <td style="color:var(--text2)">${motNm}</td>
+      <td>${m?`<span style="color:var(--green);font-weight:700">${m.toFixed(1)} km/L</span>`:'<span style="color:var(--text3)">—</span>'}</td>
+      <td style="color:var(--text3)">${abCnt}</td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:22px">Nenhum veículo ainda</td></tr>';
+}
+
+function renderPostos(){
+  const q=(document.getElementById('search-postos')?.value||'').toLowerCase();
+  const fil=S.postos.filter(p=>p.nome.toLowerCase().includes(q)||(p.cidade||'').toLowerCase().includes(q)||(p.bandeira||'').toLowerCase().includes(q));
+  document.getElementById('postos-empty').style.display=S.postos.length===0?'':'none';
+  document.getElementById('postos-table').style.display=S.postos.length?'':'none';
+  if(S.postos.length){
+    document.getElementById('postos-count').textContent=fil.length;
+    document.getElementById('postos-tbody').innerHTML=fil.map(p=>`
+      <tr>
+        <td><div style="display:flex;align-items:center;gap:9px"><div class="posto-avatar" style="background:${hashColor(p.id)}22;color:${hashColor(p.id)}">${initials(p.nome)}</div><div><strong>${p.nome}</strong><div style="font-size:11px;color:var(--text3);margin-top:1px">${p.tel||''}</div></div></div></td>
+        <td style="color:var(--text3)">${[p.end,p.cidade,p.estado].filter(Boolean).join(', ')||'—'}</td>
+        <td>${p.bandeira||'—'}</td>
+        <td>${(p.fuels||[]).slice(0,3).map(f=>fuelTag(f)).join(' ')}${(p.fuels||[]).length>3?`<span style="color:var(--text3);font-size:11px"> +${p.fuels.length-3}</span>`:''}</td>
+        <td><div style="display:flex;gap:5px"><button class="btn btn-secondary btn-sm" onclick="editPosto('${p.id}')">Editar</button><button class="btn btn-danger btn-sm" onclick="deletePosto('${p.id}')">Excluir</button></div></td>
+      </tr>`).join('');
+  }
+}
+
+function renderMotoristas(){
+  const q=(document.getElementById('search-mot')?.value||'').toLowerCase();
+  const fil=S.mots.filter(m=>m.nome.toLowerCase().includes(q)||(m.cnh||'').includes(q)||(m.tel||'').includes(q));
+  document.getElementById('mot-empty').style.display=S.mots.length===0?'':'none';
+  document.getElementById('mot-grid-wrap').style.display=S.mots.length?'':'none';
+  const badge=document.getElementById('mot-badge');
+  badge.style.display=S.mots.length?'':'none';
+  badge.textContent=S.mots.length+' motorista'+(S.mots.length!==1?'s':'');
+  document.getElementById('mot-grid').innerHTML=fil.map(m=>{
+    const col=hashColor(m.id);
+    const abCnt=S.abasts.filter(a=>a.motId===m.id).length;
+    const mediaM=calcMediaMot(m.id);
+    const st=STATUS_COLORS[m.status||'ativo'];
+    const stL=STATUS_LABEL[m.status||'ativo'];
+    const cnhOk=m.cnhVal?new Date(m.cnhVal)>new Date():null;
+    return`<div class="mot-card">
+      <div class="mot-card-header">
+        <div class="mot-avatar" style="background:${col}22;color:${col}">${initials(m.nome)}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:700;color:var(--text);line-height:1.2">${m.nome}</div>
+          <div style="margin-top:5px;display:flex;gap:5px;flex-wrap:wrap;align-items:center">
+            <span style="background:${st.bg};color:${st.color};border:1px solid ${st.color}33;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600">${stL}</span>
+            ${m.cat?`<span class="cnh-badge">CNH ${m.cat}</span>`:''}
+          </div>
+        </div>
+      </div>
+      <div class="mot-card-body">
+        ${m.tel?`<div class="mot-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.61 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 3.1 4.18 2 2 0 0 1 5.09 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L9.09 9.91A16 16 0 0 0 15 15.91l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 23 17z"/></svg>${m.tel}</div>`:''}
+        ${m.email?`<div class="mot-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>${m.email}</div>`:''}
+        ${m.cnh?`<div class="mot-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg><span>CNH ${m.cnh}</span>${m.cnhVal?`<span style="margin-left:4px;font-size:11px;color:${cnhOk?'var(--green)':'var(--red)'}">${cnhOk?'✓ válida':'⚠ vencida'}</span>`:''}</div>`:''}
+        <div style="height:1px;background:var(--border);margin:2px 0"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--text3)">Média km/L</span>
+          <span style="font-size:13px;font-weight:700;color:${mediaM?'var(--green)':'var(--text3)'}">${mediaM?mediaM.toFixed(2)+' km/L':'—'}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--text3)">Abastecimentos</span>
+          <span style="font-size:13px;font-weight:700;color:var(--text)">${abCnt}</span>
+        </div>
+        ${m.obs?`<div style="font-size:12px;color:var(--text3);background:var(--bg3);border-radius:6px;padding:7px 9px;margin-top:2px">${m.obs}</div>`:''}
+      </div>
+      <div class="mot-card-footer">
+        <button class="btn btn-secondary btn-sm" style="flex:1" onclick="editMot('${m.id}')">Editar</button>
+        <button class="btn btn-primary btn-sm" style="flex:1" onclick="openAbastForMot('${m.id}')">Abastecer</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteMot('${m.id}')">Excluir</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAbastForMot(motId){
+  fillAbastSelects();
+  document.getElementById('abast-mot').value=motId;
+  openModal('modal-abast');
+}
+
+function renderVeiculos(){
+  document.getElementById('veic-empty').style.display=S.veics.length===0?'':'none';
+  document.getElementById('veic-grid-wrap').style.display=S.veics.length?'':'none';
+  const badge=document.getElementById('veic-badge');
+  badge.style.display=S.veics.length?'':'none';
+  badge.textContent=S.veics.length+' veículo'+(S.veics.length!==1?'s':'');
+  document.getElementById('veic-grid').innerHTML=S.veics.map(v=>{
+    const m=calcMedia(v.id);const col=hashColor(v.id);
+    const abCnt=S.abasts.filter(a=>a.veicId===v.id).length;
+    const totalGasto=S.abasts.filter(a=>a.veicId===v.id).reduce((s,a)=>s+a.total,0);
+    const lkm=lastKm(v.id);
+    const lastMot=S.abasts.filter(a=>a.veicId===v.id&&a.motId).sort((a,b)=>b.data.localeCompare(a.data))[0];
+    return`<div class="veic-card">
+      <div class="veic-card-header">
+        <div class="veic-avatar" style="background:${col}22"><svg viewBox="0 0 24 24" fill="none" stroke="${col}" stroke-width="1.8"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:7px">${placaBadge(v.placa)}${v.modelo?`<span style="font-size:13px;font-weight:600;color:var(--text)">${v.modelo}</span>`:''}</div>
+          <div style="font-size:11.5px;color:var(--text3);margin-top:3px">${[v.marca,v.ano,v.cor].filter(Boolean).join(' · ')||'—'}</div>
+        </div>
+      </div>
+      <div class="veic-card-body">
+        ${lastMot?`<div class="veic-stat-row"><span class="veic-stat-label">Último motorista</span><span style="font-size:12.5px;font-weight:600;color:var(--accent2)">${motName(lastMot.motId)}</span></div>`:''}
+        <div style="height:1px;background:var(--border)"></div>
+        <div class="veic-stat-row"><span class="veic-stat-label">Média de consumo</span><span class="veic-stat-val" style="color:${m?'var(--green)':'var(--text3)'}">${m?m.toFixed(2)+' km/L':'Sem dados'}</span></div>
+        ${m?`<div class="media-bar"><div class="media-bar-fill" style="width:${Math.min(100,m/20*100)}%;background:${m>=10?'var(--green)':m>=7?'var(--amber)':'var(--red)'}"></div></div>`:''}
+        <div class="veic-stat-row"><span class="veic-stat-label">KM atual</span><span class="veic-stat-val">${lkm?lkm.toLocaleString('pt-BR')+' km':'—'}</span></div>
+        <div class="veic-stat-row"><span class="veic-stat-label">Total gasto</span><span class="veic-stat-val">${fmtBRL2(totalGasto)}</span></div>
+        <div class="veic-stat-row"><span class="veic-stat-label">Abastecimentos</span><span class="veic-stat-val">${abCnt}</span></div>
+      </div>
+      <div class="veic-card-footer">
+        <button class="btn btn-secondary btn-sm" style="flex:1" onclick="editVeic('${v.id}')">Editar</button>
+        <button class="btn btn-primary btn-sm" style="flex:1" onclick="openAbastForVeic('${v.id}')">Abastecer</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteVeic('${v.id}')">Excluir</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAbastForVeic(veicId){
+  fillAbastSelects();
+  document.getElementById('abast-veic').value=veicId;
+  onAbastVeicChange();
+  openModal('modal-abast');
+}
+
+function renderPrecos(){
+  const s=[...S.precos].sort((a,b)=>b.data.localeCompare(a.data));
+  document.getElementById('precos-empty').style.display=S.precos.length===0?'':'none';
+  document.getElementById('precos-table').style.display=S.precos.length?'':'none';
+  document.getElementById('precos-tbody').innerHTML=s.map(p=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="posto-avatar" style="background:${hashColor(p.postoId)}22;color:${hashColor(p.postoId)}">${initials(postoName(p.postoId))}</div><strong>${postoName(p.postoId)}</strong></div></td>
+      <td>${fuelTag(p.tipo)}</td><td><span class="price-val">${fmtBRL(p.valor)}</span></td>
+      <td style="color:var(--text3)">${fmtDate(p.data)}</td>
+      <td><div style="display:flex;gap:5px"><button class="btn btn-secondary btn-sm" onclick="editPreco('${p.id}')">Editar</button><button class="btn btn-danger btn-sm" onclick="deletePreco('${p.id}')">Excluir</button></div></td>
+    </tr>`).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:28px">Nenhum preço ainda</td></tr>';
+}
+
+function renderEvolucao(){
+  const fuels=['Gasolina Comum','Gasolina Aditivada','Etanol','Diesel','Diesel S-10','GNV'];
+  document.getElementById('fuel-tabs').innerHTML=fuels.map(f=>`<button class="fuel-tab${f===activeFuel?' active':''}" onclick="setFuel('${f}')">${f}</button>`).join('');
+  document.getElementById('evolucao-title').textContent='Evolução — '+activeFuel;
+  const fil=S.precos.filter(p=>p.tipo===activeFuel).sort((a,b)=>a.data.localeCompare(b.data));
+  const ok=fil.length>=2;
+  document.getElementById('evolucao-empty').style.display=ok?'none':'';
+  document.getElementById('evolucao-chart-wrap').style.display=ok?'':'none';
+  if(!ok)return;
+  const pIds=[...new Set(fil.map(p=>p.postoId))];
+  const dates=[...new Set(fil.map(p=>p.data))].sort();
+  const datasets=pIds.map((pid,i)=>{
+    const rows=fil.filter(p=>p.postoId===pid);
+    return{label:postoName(pid),data:dates.map(d=>{const r=rows.filter(p=>p.data<=d).sort((a,b)=>b.data.localeCompare(a.data))[0];return r?r.valor:null;}),borderColor:PALETTE[i%PALETTE.length],backgroundColor:PALETTE[i%PALETTE.length]+'22',tension:0.35,spanGaps:true,pointRadius:5,pointHoverRadius:7,borderWidth:2};
+  });
+  const ctx=document.getElementById('evolucao-canvas').getContext('2d');
+  if(chartInst)chartInst.destroy();
+  chartInst=new Chart(ctx,{type:'line',data:{labels:dates.map(fmtDate),datasets},options:{responsive:true,plugins:{legend:{position:'top',labels:{color:'#9090a0',font:{size:12,family:'Inter'},boxWidth:12,padding:14}},tooltip:{backgroundColor:'#16161a',borderColor:'#2a2a32',borderWidth:1,titleColor:'#f0f0f4',bodyColor:'#9090a0',callbacks:{label:c=>`${c.dataset.label}: R$ ${Number(c.raw).toFixed(3).replace('.',',')}`}}},scales:{x:{grid:{color:'#2a2a32'},ticks:{color:'#5a5a6a',font:{size:11}}},y:{grid:{color:'#2a2a32'},ticks:{color:'#5a5a6a',font:{size:11},callback:v=>'R$ '+Number(v).toFixed(3).replace('.',',')}}}}}); 
+}
+function setFuel(f){activeFuel=f;renderEvolucao();}
+
+function renderAbast(){
+  const fMot=document.getElementById('filter-mot')?.value||'';
+  const fVeic=document.getElementById('filter-veic')?.value||'';
+  let list=S.abasts;
+  if(fMot)list=list.filter(a=>a.motId===fMot);
+  if(fVeic)list=list.filter(a=>a.veicId===fVeic);
+  const sorted=[...list].sort((a,b)=>b.data.localeCompare(a.data));
+  document.getElementById('abast-empty').style.display=S.abasts.length===0?'':'none';
+  document.getElementById('abast-data').style.display=S.abasts.length?'':'none';
+  if(!S.abasts.length)return;
+  const totalGasto=list.reduce((s,a)=>s+a.total,0);
+  const totalLitros=list.reduce((s,a)=>s+a.litros,0);
+  const mediaPL=totalLitros?totalGasto/totalLitros:0;
+  const mediasKm=list.filter(a=>a.media).map(a=>a.media);
+  const mediaKmL=mediasKm.length?mediasKm.reduce((s,v)=>s+v,0)/mediasKm.length:null;
+  const veicsCount=[...new Set(list.map(a=>a.veicId).filter(Boolean))].length;
+  document.getElementById('abast-summary').innerHTML=`
+    <div class="stat-card stat-accent"><div class="stat-icon stat-icon-accent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-label">Total gasto</div><div class="stat-value" style="font-size:17px">${fmtBRL2(totalGasto)}</div><div class="stat-sub">${list.length} abastecimentos</div></div>
+    <div class="stat-card stat-green"><div class="stat-icon stat-icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4"/></svg></div><div class="stat-label">Total de litros</div><div class="stat-value">${totalLitros.toFixed(1).replace('.',',')} L</div><div class="stat-sub">Combustível total</div></div>
+    <div class="stat-card stat-amber"><div class="stat-icon stat-icon-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><div class="stat-label">Média paga/litro</div><div class="stat-value">${fmtBRL(mediaPL)}</div><div class="stat-sub">Preço médio</div></div>
+    <div class="stat-card stat-teal"><div class="stat-icon stat-icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="stat-label">Média km/L</div><div class="stat-value">${mediaKmL?mediaKmL.toFixed(2)+' km/L':'—'}</div><div class="stat-sub">${mediasKm.length} registros</div></div>
+    <div class="stat-card stat-cyan"><div class="stat-icon stat-icon-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><div class="stat-label">Veículos</div><div class="stat-value">${veicsCount}</div><div class="stat-sub">Nos filtros</div></div>
+  `;
+  document.getElementById('abast-tbody').innerHTML=sorted.map(a=>{
+    const v=S.veics.find(x=>x.id===a.veicId);
+    return`<tr>
+      <td style="color:var(--text3);white-space:nowrap">${fmtDate(a.data)}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:7px">
+          <div style="width:26px;height:26px;border-radius:50%;background:${hashColor(a.motId||'x')}22;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:${hashColor(a.motId||'x')};flex-shrink:0">${initials(motName(a.motId))}</div>
+          <strong>${motName(a.motId)}</strong>
+        </div>
+      </td>
+      <td>${v?placaBadge(v.placa):'<span style="color:var(--text3)">—</span>'}${v&&v.modelo?`<span style="font-size:11px;color:var(--text3);margin-left:5px">${v.modelo}</span>`:''}</td>
+      <td><strong>${postoName(a.postoId)}</strong></td>
+      <td>${fuelTag(a.tipo)}</td>
+      <td>${a.litros.toFixed(2).replace('.',',')} L</td>
+      <td>${fmtBRL(a.preco)}</td>
+      <td><strong>${fmtBRL2(a.total)}</strong></td>
+      <td style="color:var(--text3)">${a.km?a.km.toLocaleString('pt-BR')+' km':'—'}</td>
+      <td>${a.media?`<span style="color:var(--green);font-weight:700">${a.media.toFixed(1)} km/L</span>`:'<span style="color:var(--text3)">—</span>'}</td>
+      <td><div style="display:flex;gap:5px"><button class="btn btn-secondary btn-sm" onclick="editAbast('${a.id}')">Editar</button><button class="btn btn-danger btn-sm" onclick="deleteAbast('${a.id}')">Excluir</button></div></td>
+    </tr>`;
+  }).join('');
+}
+
+renderDashboard();
+</script>
+</body>
+</html>
