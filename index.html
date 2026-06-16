@@ -681,20 +681,69 @@ select.filter-sel option{background:var(--bg3)}
 <div class="toast" id="toast"><span class="toast-dot"></span><span id="toast-msg"></span></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-const S={
-  postos:JSON.parse(localStorage.getItem('ft_postos')||'[]'),
-  precos:JSON.parse(localStorage.getItem('ft_precos')||'[]'),
-  abasts:JSON.parse(localStorage.getItem('ft_abasts')||'[]'),
-  veics:JSON.parse(localStorage.getItem('ft_veics')||'[]'),
-  mots:JSON.parse(localStorage.getItem('ft_mots')||'[]'),
-};
-const save=()=>{
-  localStorage.setItem('ft_postos',JSON.stringify(S.postos));
-  localStorage.setItem('ft_precos',JSON.stringify(S.precos));
-  localStorage.setItem('ft_abasts',JSON.stringify(S.abasts));
-  localStorage.setItem('ft_veics',JSON.stringify(S.veics));
-  localStorage.setItem('ft_mots',JSON.stringify(S.mots));
-};
+// ── SUPABASE ──────────────────────────────────────────────────────────────────
+const SUPA_URL='https://zknzjztpudhetmssjnkl.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprbnpqenRwdWRoZXRtc3NqbmtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzUwMDYsImV4cCI6MjA5NzIxMTAwNn0.E-njIMApRigIN1h4qwAhMg6Vh-A3OKXN76zt8JgjlY4';
+
+async function db(table,opts={}){
+  const url=`${SUPA_URL}/rest/v1/${table}`;
+  const res=await fetch(url,{
+    headers:{
+      'apikey':SUPA_KEY,
+      'Authorization':`Bearer ${SUPA_KEY}`,
+      'Content-Type':'application/json',
+      'Prefer':'return=representation',
+    },
+    ...opts,
+  });
+  if(!res.ok){
+    const err=await res.text();
+    console.error('Supabase error:',res.status,err);
+    throw new Error(err);
+  }
+  const txt=await res.text();
+  return txt?JSON.parse(txt):[];
+}
+
+const S={postos:[],precos:[],abasts:[],veics:[],mots:[]};
+
+// Mappers banco → app
+const mapPosto=r=>({...r,fuels:r.fuels||[]});
+const mapMot=r=>({...r,cnhVal:r.cnh_val||''});
+const mapVeic=r=>({...r,kmInicial:r.km_inicial||0});
+const mapPreco=r=>({...r,postoId:r.posto_id,valor:parseFloat(r.valor)});
+const mapAbast=r=>({...r,motId:r.mot_id,veicId:r.veic_id,postoId:r.posto_id,kmAnt:r.km_ant,litros:parseFloat(r.litros),preco:parseFloat(r.preco),total:parseFloat(r.total),media:r.media?parseFloat(r.media):null});
+
+function showLoading(on){
+  let el=document.getElementById('global-loading');
+  if(!el){el=document.createElement('div');el.id='global-loading';el.style.cssText='position:fixed;top:0;left:0;right:0;height:3px;background:var(--accent);z-index:9999;animation:loadbar 1.2s ease infinite';document.body.appendChild(el);const st=document.createElement('style');st.textContent='@keyframes loadbar{0%{width:0;opacity:1}70%{width:80%;opacity:1}100%{width:100%;opacity:0}}';document.head.appendChild(st);}
+  el.style.display=on?'block':'none';
+}
+
+async function loadAll(){
+  showLoading(true);
+  try{
+    const [postos,mots,veics,precos,abasts]=await Promise.all([
+      db('postos?select=*&order=created_at'),
+      db('motoristas?select=*&order=created_at'),
+      db('veiculos?select=*&order=created_at'),
+      db('precos?select=*&order=created_at'),
+      db('abastecimentos?select=*&order=created_at'),
+    ]);
+    S.postos=postos.map(mapPosto);
+    S.mots=mots.map(mapMot);
+    S.veics=veics.map(mapVeic);
+    S.precos=precos.map(mapPreco);
+    S.abasts=abasts.map(mapAbast);
+  }catch(e){
+    toast('Erro ao conectar com o banco. Verifique o Supabase.');
+    console.error(e);
+  }finally{showLoading(false);}
+  renderDashboard();
+}
+
+// save() mantido como no-op para compatibilidade com código existente
+const save=()=>{};
 let chartInst=null;
 let activeFuel='Diesel S-10';
 
@@ -840,15 +889,35 @@ function onAbastVeicChange(){
 }
 
 // POSTO CRUD
-function savePosto(){
+async function savePosto(){
   const nome=document.getElementById('posto-nome').value.trim();
   if(!nome){alert('Informe o nome.');return;}
   const fuels=[...document.querySelectorAll('#fuel-checks input:checked')].map(c=>c.value);
-  const data={nome,bandeira:document.getElementById('posto-bandeira').value,tel:document.getElementById('posto-tel').value.trim(),end:document.getElementById('posto-end').value.trim(),cidade:document.getElementById('posto-cidade').value.trim(),estado:document.getElementById('posto-estado').value,fuels};
+  const payload={nome,bandeira:document.getElementById('posto-bandeira').value,tel:document.getElementById('posto-tel').value.trim(),end:document.getElementById('posto-end').value.trim(),cidade:document.getElementById('posto-cidade').value.trim(),estado:document.getElementById('posto-estado').value,fuels};
   const eid=document.getElementById('posto-edit-id').value;
-  if(eid){const i=S.postos.findIndex(p=>p.id===eid);S.postos[i]={...S.postos[i],...data};toast('Posto atualizado!');}
-  else{S.postos.push({id:uid(),...data});toast('Posto cadastrado!');}
-  save();closeModal('modal-posto');renderDashboard();renderPostos();
+  showLoading(true);
+  try{
+    if(eid){
+      await db(`postos?id=eq.${eid}`,{method:'PATCH',body:JSON.stringify(payload)});
+      toast('Posto atualizado!');
+    }else{
+      await db('postos',{method:'POST',body:JSON.stringify({id:uid(),...payload})});
+      toast('Posto cadastrado!');
+    }
+    await loadAll();
+  }catch(e){toast('Erro ao salvar posto.');}finally{showLoading(false);}
+  closeModal('modal-posto');
+}
+async function deletePosto(id){
+  if(!confirm('Excluir este posto?'))return;
+  showLoading(true);
+  try{
+    await db(`abastecimentos?posto_id=eq.${id}`,{method:'DELETE'});
+    await db(`precos?posto_id=eq.${id}`,{method:'DELETE'});
+    await db(`postos?id=eq.${id}`,{method:'DELETE'});
+    toast('Posto excluído.');
+    await loadAll();
+  }catch(e){toast('Erro ao excluir.');}finally{showLoading(false);}
 }
 function editPosto(id){
   const p=S.postos.find(x=>x.id===id);
@@ -863,21 +932,33 @@ function editPosto(id){
   document.querySelectorAll('#fuel-checks input').forEach(c=>c.checked=(p.fuels||[]).includes(c.value));
   openModal('modal-posto');
 }
-function deletePosto(id){
-  if(!confirm('Excluir este posto?'))return;
-  S.postos=S.postos.filter(p=>p.id!==id);S.precos=S.precos.filter(p=>p.postoId!==id);S.abasts=S.abasts.filter(a=>a.postoId!==id);
-  save();renderPostos();renderDashboard();toast('Posto excluído.');
-}
-
 // MOTORISTA CRUD
-function saveMot(){
+async function saveMot(){
   const nome=document.getElementById('mot-nome').value.trim();
   if(!nome){alert('Informe o nome do motorista.');return;}
-  const data={nome,cpf:document.getElementById('mot-cpf').value.trim(),tel:document.getElementById('mot-tel').value.trim(),email:document.getElementById('mot-email').value.trim(),cnh:document.getElementById('mot-cnh').value.trim(),cat:document.getElementById('mot-cat').value,cnhVal:document.getElementById('mot-cnh-val').value,status:document.getElementById('mot-status').value,obs:document.getElementById('mot-obs').value.trim()};
+  const payload={nome,cpf:document.getElementById('mot-cpf').value.trim(),tel:document.getElementById('mot-tel').value.trim(),email:document.getElementById('mot-email').value.trim(),cnh:document.getElementById('mot-cnh').value.trim(),cat:document.getElementById('mot-cat').value,cnh_val:document.getElementById('mot-cnh-val').value||null,status:document.getElementById('mot-status').value,obs:document.getElementById('mot-obs').value.trim()};
   const eid=document.getElementById('mot-edit-id').value;
-  if(eid){const i=S.mots.findIndex(m=>m.id===eid);S.mots[i]={...S.mots[i],...data};toast('Motorista atualizado!');}
-  else{S.mots.push({id:uid(),...data});toast('Motorista cadastrado!');}
-  save();closeModal('modal-mot');renderMotoristas();renderDashboard();fillAbastSelects();
+  showLoading(true);
+  try{
+    if(eid){
+      await db(`motoristas?id=eq.${eid}`,{method:'PATCH',body:JSON.stringify(payload)});
+      toast('Motorista atualizado!');
+    }else{
+      await db('motoristas',{method:'POST',body:JSON.stringify({id:uid(),...payload})});
+      toast('Motorista cadastrado!');
+    }
+    await loadAll();
+  }catch(e){toast('Erro ao salvar motorista.');}finally{showLoading(false);}
+  closeModal('modal-mot');
+}
+async function deleteMot(id){
+  if(!confirm('Excluir este motorista?'))return;
+  showLoading(true);
+  try{
+    await db(`motoristas?id=eq.${id}`,{method:'DELETE'});
+    toast('Motorista excluído.');
+    await loadAll();
+  }catch(e){toast('Erro ao excluir.');}finally{showLoading(false);}
 }
 function editMot(id){
   const m=S.mots.find(x=>x.id===id);
@@ -894,21 +975,34 @@ function editMot(id){
   document.getElementById('mot-obs').value=m.obs||'';
   openModal('modal-mot');
 }
-function deleteMot(id){
-  if(!confirm('Excluir este motorista?'))return;
-  S.mots=S.mots.filter(m=>m.id!==id);
-  save();renderMotoristas();renderDashboard();toast('Motorista excluído.');
-}
-
 // VEÍCULO CRUD
-function saveVeic(){
+async function saveVeic(){
   const placa=document.getElementById('veic-placa').value.trim().toUpperCase();
   if(!placa){alert('Informe a placa.');return;}
-  const data={placa,modelo:document.getElementById('veic-modelo').value.trim(),marca:document.getElementById('veic-marca').value.trim(),ano:document.getElementById('veic-ano').value||'',cor:document.getElementById('veic-cor').value.trim(),renavam:document.getElementById('veic-renavam').value.trim(),comb:document.getElementById('veic-comb').value,kmInicial:parseInt(document.getElementById('veic-km').value)||0};
+  const payload={placa,modelo:document.getElementById('veic-modelo').value.trim(),marca:document.getElementById('veic-marca').value.trim(),ano:document.getElementById('veic-ano').value||'',cor:document.getElementById('veic-cor').value.trim(),renavam:document.getElementById('veic-renavam').value.trim(),comb:document.getElementById('veic-comb').value,km_inicial:parseInt(document.getElementById('veic-km').value)||0};
   const eid=document.getElementById('veic-edit-id').value;
-  if(eid){const i=S.veics.findIndex(v=>v.id===eid);S.veics[i]={...S.veics[i],...data};toast('Veículo atualizado!');}
-  else{S.veics.push({id:uid(),...data});toast('Veículo cadastrado!');}
-  save();closeModal('modal-veic');renderVeiculos();renderDashboard();fillAbastSelects();
+  showLoading(true);
+  try{
+    if(eid){
+      await db(`veiculos?id=eq.${eid}`,{method:'PATCH',body:JSON.stringify(payload)});
+      toast('Veículo atualizado!');
+    }else{
+      await db('veiculos',{method:'POST',body:JSON.stringify({id:uid(),...payload})});
+      toast('Veículo cadastrado!');
+    }
+    await loadAll();
+  }catch(e){toast('Erro ao salvar veículo.');}finally{showLoading(false);}
+  closeModal('modal-veic');
+}
+async function deleteVeic(id){
+  if(!confirm('Excluir este veículo?'))return;
+  showLoading(true);
+  try{
+    await db(`abastecimentos?veic_id=eq.${id}`,{method:'DELETE'});
+    await db(`veiculos?id=eq.${id}`,{method:'DELETE'});
+    toast('Veículo excluído.');
+    await loadAll();
+  }catch(e){toast('Erro ao excluir.');}finally{showLoading(false);}
 }
 function editVeic(id){
   const v=S.veics.find(x=>x.id===id);
@@ -924,23 +1018,35 @@ function editVeic(id){
   document.getElementById('veic-km').value=v.kmInicial||'';
   openModal('modal-veic');
 }
-function deleteVeic(id){
-  if(!confirm('Excluir este veículo?'))return;
-  S.veics=S.veics.filter(v=>v.id!==id);S.abasts=S.abasts.filter(a=>a.veicId!==id);
-  save();renderVeiculos();renderDashboard();toast('Veículo excluído.');
-}
-
 // PREÇO CRUD
-function savePreco(){
+async function savePreco(){
   const postoId=document.getElementById('preco-posto').value;
   const valor=parseFloat(document.getElementById('preco-valor').value);
   if(!postoId){alert('Selecione um posto.');return;}
   if(!valor||valor<=0){alert('Informe um preço válido.');return;}
-  const data={postoId,tipo:document.getElementById('preco-tipo').value,valor,data:document.getElementById('preco-data').value||today()};
+  const payload={posto_id:postoId,tipo:document.getElementById('preco-tipo').value,valor,data:document.getElementById('preco-data').value||today()};
   const eid=document.getElementById('preco-edit-id').value;
-  if(eid){const i=S.precos.findIndex(p=>p.id===eid);S.precos[i]={...S.precos[i],...data};toast('Preço atualizado!');}
-  else{S.precos.push({id:uid(),...data});toast('Preço registrado!');}
-  save();closeModal('modal-preco');renderPrecos();renderDashboard();
+  showLoading(true);
+  try{
+    if(eid){
+      await db(`precos?id=eq.${eid}`,{method:'PATCH',body:JSON.stringify(payload)});
+      toast('Preço atualizado!');
+    }else{
+      await db('precos',{method:'POST',body:JSON.stringify({id:uid(),...payload})});
+      toast('Preço registrado!');
+    }
+    await loadAll();
+  }catch(e){toast('Erro ao salvar preço.');}finally{showLoading(false);}
+  closeModal('modal-preco');
+}
+async function deletePreco(id){
+  if(!confirm('Excluir este registro?'))return;
+  showLoading(true);
+  try{
+    await db(`precos?id=eq.${id}`,{method:'DELETE'});
+    toast('Registro excluído.');
+    await loadAll();
+  }catch(e){toast('Erro ao excluir.');}finally{showLoading(false);}
 }
 function editPreco(id){
   const p=S.precos.find(x=>x.id===id);
@@ -952,14 +1058,9 @@ function editPreco(id){
   document.getElementById('preco-data').value=p.data;
   openModal('modal-preco');
 }
-function deletePreco(id){
-  if(!confirm('Excluir este registro?'))return;
-  S.precos=S.precos.filter(p=>p.id!==id);
-  save();renderPrecos();renderDashboard();toast('Registro excluído.');
-}
 
 // ABAST CRUD
-function saveAbast(){
+async function saveAbast(){
   const motId=document.getElementById('abast-mot').value;
   const veicId=document.getElementById('abast-veic').value;
   const postoId=document.getElementById('abast-posto').value;
@@ -973,11 +1074,28 @@ function saveAbast(){
   const kmAtual=parseInt(document.getElementById('abast-km').value)||null;
   const kmAnt=parseInt(document.getElementById('abast-km-ant').value)||null;
   const media=(kmAtual&&kmAnt&&kmAtual>kmAnt)?((kmAtual-kmAnt)/litros):null;
-  const data={motId,veicId,postoId,tipo:document.getElementById('abast-tipo').value,litros,preco,total:litros*preco,km:kmAtual,kmAnt,media,data:document.getElementById('abast-data').value||today(),obs:document.getElementById('abast-obs').value.trim()};
+  const payload={mot_id:motId,veic_id:veicId,posto_id:postoId,tipo:document.getElementById('abast-tipo').value,litros,preco,total:litros*preco,km:kmAtual,km_ant:kmAnt,media,data:document.getElementById('abast-data').value||today(),obs:document.getElementById('abast-obs').value.trim()};
   const eid=document.getElementById('abast-edit-id').value;
-  if(eid){const i=S.abasts.findIndex(a=>a.id===eid);S.abasts[i]={...S.abasts[i],...data};}
-  else{S.abasts.push({id:uid(),...data});}
-  save();closeModal('modal-abast');renderAbast();renderVeiculos();renderMotoristas();renderDashboard();toast('Abastecimento salvo!');
+  showLoading(true);
+  try{
+    if(eid){
+      await db(`abastecimentos?id=eq.${eid}`,{method:'PATCH',body:JSON.stringify(payload)});
+    }else{
+      await db('abastecimentos',{method:'POST',body:JSON.stringify({id:uid(),...payload})});
+    }
+    toast('Abastecimento salvo!');
+    await loadAll();
+  }catch(e){toast('Erro ao salvar abastecimento.');}finally{showLoading(false);}
+  closeModal('modal-abast');
+}
+async function deleteAbast(id){
+  if(!confirm('Excluir este abastecimento?'))return;
+  showLoading(true);
+  try{
+    await db(`abastecimentos?id=eq.${id}`,{method:'DELETE'});
+    toast('Excluído.');
+    await loadAll();
+  }catch(e){toast('Erro ao excluir.');}finally{showLoading(false);}
 }
 function editAbast(id){
   const a=S.abasts.find(x=>x.id===id);
@@ -994,11 +1112,6 @@ function editAbast(id){
   document.getElementById('abast-data').value=a.data;
   document.getElementById('abast-obs').value=a.obs||'';
   openModal('modal-abast');
-}
-function deleteAbast(id){
-  if(!confirm('Excluir este abastecimento?'))return;
-  S.abasts=S.abasts.filter(a=>a.id!==id);
-  save();renderAbast();renderVeiculos();renderMotoristas();toast('Excluído.');
 }
 
 // ── RENDERS ──────────────────────────────────────────────────────────────────
@@ -1518,8 +1631,7 @@ function seedData(){
   save();
 }
 
-seedData();
-renderDashboard();
+loadAll();
 </script>
 </body>
 </html>
