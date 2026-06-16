@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FuelTracker</title>
+<title>FleetDiesel — Frota Pesada</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -177,8 +177,8 @@ select.filter-sel option{background:var(--bg3)}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 5h12M10 19a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg>
       </div>
       <div>
-        <div class="brand-name">FuelTracker</div>
-        <div class="brand-sub">Controle de preços</div>
+        <div class="brand-name">FleetDiesel</div>
+        <div class="brand-sub">Gestão de frota pesada</div>
       </div>
     </div>
   </div>
@@ -252,7 +252,7 @@ select.filter-sel option{background:var(--bg3)}
     <div class="content">
       <div id="dash-empty" class="empty-state">
         <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10.5V20a1 1 0 0 0 1 1h5v-5h4v5h5a1 1 0 0 0 1-1V10.5"/><path d="M21 10.5L12 3 3 10.5"/></svg></div>
-        <div class="empty-title">Bem-vindo ao FuelTracker</div>
+        <div class="empty-title">Bem-vindo ao FleetDiesel</div>
         <div class="empty-desc">Cadastre postos, motoristas e veículos para começar a monitorar preços e consumo.</div>
         <div style="display:flex;gap:8px;margin-top:4px">
           <button class="btn btn-primary" onclick="openModal('modal-posto')">Novo Posto</button>
@@ -390,7 +390,7 @@ select.filter-sel option{background:var(--bg3)}
           <div class="card-header"><div class="card-title">Histórico de abastecimentos</div></div>
           <div style="overflow-x:auto">
             <table style="min-width:900px">
-              <thead><tr><th>Data</th><th>Motorista</th><th>Veículo</th><th>Posto</th><th>Comb.</th><th>Litros</th><th>Preço/L</th><th>Total</th><th>KM</th><th>Média</th><th>Ações</th></tr></thead>
+              <thead><tr><th>Data</th><th>Motorista</th><th>Veículo</th><th>Posto</th><th>Comb.</th><th>Litros</th><th>Preço/L</th><th>Total</th><th>Hodômetro</th><th>Média</th><th>Ações</th></tr></thead>
               <tbody id="abast-tbody"></tbody>
             </table>
           </div>
@@ -454,7 +454,7 @@ select.filter-sel option{background:var(--bg3)}
           </div>
           <div style="overflow-x:auto">
             <table style="min-width:700px">
-              <thead><tr><th>Motorista</th><th>Placa</th><th>Modelo</th><th>Abastecimentos</th><th>Litros</th><th>KM rodado</th><th>Média km/L</th><th>Custo médio/km</th></tr></thead>
+              <thead><tr><th>Motorista</th><th>Placa</th><th>Modelo</th><th>Abastecimentos</th><th>Litros</th><th>Hodômetro rodado</th><th>Média km/L</th><th>Custo médio/km</th></tr></thead>
               <tbody id="rel-cross-tbody"></tbody>
             </table>
           </div>
@@ -532,12 +532,12 @@ select.filter-sel option{background:var(--bg3)}
       <div class="field">
         <label>Combustíveis disponíveis</label>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px" id="fuel-checks">
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="Gasolina Comum" style="accent-color:var(--accent)"> Gasolina Comum</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="Gasolina Aditivada" style="accent-color:var(--accent)"> Gasolina Aditivada</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="Etanol" style="accent-color:var(--accent)"> Etanol</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="Diesel" style="accent-color:var(--accent)"> Diesel</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="Diesel S-10" style="accent-color:var(--accent)"> Diesel S-10</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="Diesel S-10" style="accent-color:var(--accent)" checked> Diesel S-10</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="Diesel Comum" style="accent-color:var(--accent)"> Diesel Comum</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="Diesel Marino" style="accent-color:var(--accent)"> Diesel Marino</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="Arla 32" style="accent-color:var(--accent)"> Arla 32</label>
           <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="GNV" style="accent-color:var(--accent)"> GNV</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text2)"><input type="checkbox" value="Gasolina Comum" style="accent-color:var(--accent)"> Gasolina Comum</label>
         </div>
       </div>
     </div>
@@ -558,7 +558,7 @@ select.filter-sel option{background:var(--bg3)}
     <div class="modal-body">
       <input type="hidden" id="mot-edit-id">
       <div class="modal-section">Dados pessoais</div>
-      <div class="field"><label>Nome completo *</label><input type="text" id="mot-nome" placeholder="João da Silva"></div>
+      <div class="field"><label>Nome completo *</label><input type="text" id="mot-nome" placeholder="José Antônio dos Santos"></div>
       <div class="field-row">
         <div class="field"><label>CPF</label><input type="text" id="mot-cpf" placeholder="000.000.000-00" maxlength="14"></div>
         <div class="field"><label>Telefone *</label><input type="text" id="mot-tel" placeholder="(35) 99999-9999"></div>
@@ -567,7 +567,7 @@ select.filter-sel option{background:var(--bg3)}
       <div class="modal-section" style="margin-top:4px">Habilitação (CNH)</div>
       <div class="field-row">
         <div class="field"><label>Número da CNH</label><input type="text" id="mot-cnh" placeholder="00000000000" maxlength="11"></div>
-        <div class="field"><label>Categoria</label><select id="mot-cat"><option value="">— Selecione —</option><option>A</option><option>B</option><option>AB</option><option>C</option><option>D</option><option>E</option><option>ACC</option></select></div>
+        <div class="field"><label>Categoria</label><select id="mot-cat"><option value="">— Selecione —</option><option>C</option><option>D</option><option>E</option><option>D+E</option><option>C+E</option><option>ACC</option></select></div>
       </div>
       <div class="field-row">
         <div class="field"><label>Validade CNH</label><input type="date" id="mot-cnh-val"></div>
@@ -594,20 +594,20 @@ select.filter-sel option{background:var(--bg3)}
       <div class="modal-section">Identificação</div>
       <div class="field-row">
         <div class="field"><label>Placa *</label><input type="text" id="veic-placa" placeholder="ABC-1234" maxlength="8" style="text-transform:uppercase;letter-spacing:0.06em;font-weight:700"></div>
-        <div class="field"><label>Apelido / Modelo</label><input type="text" id="veic-modelo" placeholder="Gol, Sprinter…"></div>
+        <div class="field"><label>Modelo / Carroceria</label><input type="text" id="veic-modelo" placeholder="Scania R450, Volvo FH, Bitrem…"></div>
       </div>
       <div class="field-row">
-        <div class="field"><label>Marca</label><input type="text" id="veic-marca" placeholder="Volkswagen, Ford…"></div>
+        <div class="field"><label>Marca</label><input type="text" id="veic-marca" placeholder="Scania, Volvo, Mercedes-Benz, DAF…"></div>
         <div class="field"><label>Ano</label><input type="number" id="veic-ano" placeholder="2022" min="1990" max="2030"></div>
       </div>
       <div class="field-row">
         <div class="field"><label>Cor</label><input type="text" id="veic-cor" placeholder="Prata, Branco…"></div>
-        <div class="field"><label>Renavam</label><input type="text" id="veic-renavam" placeholder="00000000000" maxlength="11"></div>
+        <div class="field"><label>RNTRC / Renavam</label><input type="text" id="veic-renavam" placeholder="00000000000" maxlength="11"></div>
       </div>
       <div class="modal-section" style="margin-top:4px">Combustível e KM</div>
       <div class="field-row">
-        <div class="field"><label>Combustível padrão</label><select id="veic-comb"><option>Gasolina Comum</option><option>Gasolina Aditivada</option><option>Etanol</option><option>Diesel</option><option>Diesel S-10</option><option>GNV</option><option>Flex</option></select></div>
-        <div class="field"><label>KM atual</label><input type="number" id="veic-km" placeholder="85000" min="0"></div>
+        <div class="field"><label>Combustível padrão</label><select id="veic-comb"><option>Diesel S-10</option><option>Diesel Comum</option><option>Diesel Marino</option><option>GNV</option><option>Gasolina Comum</option></select></div>
+        <div class="field"><label>Hodômetro atual (km)</label><input type="number" id="veic-km" placeholder="350000" min="0"></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -628,7 +628,7 @@ select.filter-sel option{background:var(--bg3)}
       <input type="hidden" id="preco-edit-id">
       <div class="field"><label>Posto *</label><select id="preco-posto"></select></div>
       <div class="field-row">
-        <div class="field"><label>Combustível *</label><select id="preco-tipo"><option>Gasolina Comum</option><option>Gasolina Aditivada</option><option>Etanol</option><option>Diesel</option><option>Diesel S-10</option><option>GNV</option></select></div>
+        <div class="field"><label>Combustível *</label><select id="preco-tipo"><option>Diesel S-10</option><option>Diesel Comum</option><option>Diesel Marino</option><option>Arla 32</option><option>GNV</option><option>Gasolina Comum</option></select></div>
         <div class="field"><label>Preço (R$/L) *</label><input type="number" id="preco-valor" step="0.001" min="0" placeholder="6.299"></div>
       </div>
       <div class="field"><label>Data</label><input type="date" id="preco-data"></div>
@@ -657,7 +657,7 @@ select.filter-sel option{background:var(--bg3)}
       <div class="modal-section" style="margin-top:4px">Posto e combustível</div>
       <div class="field-row">
         <div class="field"><label>Posto *</label><select id="abast-posto"></select></div>
-        <div class="field"><label>Combustível *</label><select id="abast-tipo"><option>Gasolina Comum</option><option>Gasolina Aditivada</option><option>Etanol</option><option>Diesel</option><option>Diesel S-10</option><option>GNV</option></select></div>
+        <div class="field"><label>Combustível *</label><select id="abast-tipo"><option>Diesel S-10</option><option>Diesel Comum</option><option>Diesel Marino</option><option>Arla 32</option><option>GNV</option><option>Gasolina Comum</option></select></div>
       </div>
       <div class="modal-section" style="margin-top:4px">Abastecimento</div>
       <div class="field-row3">
@@ -666,8 +666,8 @@ select.filter-sel option{background:var(--bg3)}
         <div class="field"><label>Data</label><input type="date" id="abast-data"></div>
       </div>
       <div class="field-row">
-        <div class="field"><label>KM atual</label><input type="number" id="abast-km" min="0" placeholder="85000"></div>
-        <div class="field"><label>KM anterior <span style="color:var(--text3);font-size:10px;font-weight:400">(auto)</span></label><input type="number" id="abast-km-ant" min="0" placeholder="Último KM registrado" style="opacity:0.65;cursor:not-allowed" readonly></div>
+        <div class="field"><label>Hodômetro (km)</label><input type="number" id="abast-km" min="0" placeholder="85000"></div>
+        <div class="field"><label>Hodômetro anterior <span style="color:var(--text3);font-size:10px;font-weight:400">(auto)</span></label><input type="number" id="abast-km-ant" min="0" placeholder="Último KM registrado" style="opacity:0.65;cursor:not-allowed" readonly></div>
       </div>
       <div class="field"><label>Observações</label><textarea id="abast-obs" placeholder="Tanque cheio, promoção…"></textarea></div>
     </div>
@@ -696,14 +696,14 @@ const save=()=>{
   localStorage.setItem('ft_mots',JSON.stringify(S.mots));
 };
 let chartInst=null;
-let activeFuel='Gasolina Comum';
+let activeFuel='Diesel S-10';
 
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const fmtBRL=v=>'R$ '+Number(v).toFixed(3).replace('.',',');
 const fmtBRL2=v=>'R$ '+Number(v).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
 const today=()=>new Date().toISOString().slice(0,10);
 const fmtDate=s=>s?new Date(s+'T12:00').toLocaleDateString('pt-BR'):'—';
-const FUEL_TAG={'Gasolina Comum':'tag-gas','Gasolina Aditivada':'tag-gas','Etanol':'tag-eth','Diesel':'tag-die','Diesel S-10':'tag-die','GNV':'tag-gna'};
+const FUEL_TAG={'Diesel S-10':'tag-die','Diesel Comum':'tag-die','Diesel Marino':'tag-die','Arla 32':'tag-gna','GNV':'tag-gna','Gasolina Comum':'tag-gas'};
 const PALETTE=['#6c63ff','#22c55e','#f59e0b','#ef4444','#14b8a6','#3b82f6','#ec4899','#8b5cf6'];
 const AVATAR_COLORS=['#6c63ff','#22c55e','#f59e0b','#14b8a6','#3b82f6','#ec4899','#8b5cf6','#f97316'];
 const STATUS_COLORS={ativo:{bg:'rgba(34,197,94,0.12)',color:'#22c55e'},inativo:{bg:'rgba(239,68,68,0.12)',color:'#ef4444'},ferias:{bg:'rgba(245,158,11,0.12)',color:'#f59e0b'},afastado:{bg:'rgba(148,163,184,0.12)',color:'#94a3b8'}};
@@ -742,7 +742,7 @@ function calcMediaMot(motId){
 }
 
 // NAV
-const pages=['dashboard','postos','motoristas','veiculos','abast','precos','evolucao'];
+const pages=['dashboard','postos','motoristas','veiculos','abast','relatorio','precos','evolucao'];
 function showPage(id){
   pages.forEach(p=>{
     document.getElementById('page-'+p).classList.toggle('hidden',p!==id);
@@ -754,7 +754,8 @@ function showPage(id){
   if(id==='motoristas')renderMotoristas();
   if(id==='veiculos')renderVeiculos();
   if(id==='abast'){fillAbastSelects();renderAbast();}
-  if(id==='precos')renderPrecos();
+  if(id==='abast'){fillAbastSelects();renderAbast();}
+  if(id==='relatorio'){fillRelFilters();renderRelatorio();}
   if(id==='evolucao')renderEvolucao();
 }
 document.querySelectorAll('.nav-item[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
@@ -832,7 +833,7 @@ function onAbastVeicChange(){
   const veicId=document.getElementById('abast-veic').value;
   const v=S.veics.find(x=>x.id===veicId);
   if(v){
-    if(v.comb&&v.comb!=='Flex')document.getElementById('abast-tipo').value=v.comb;
+    if(v.comb)document.getElementById('abast-tipo').value=v.comb;
     const lkm=lastKm(veicId);
     document.getElementById('abast-km-ant').value=lkm||'';
   }
@@ -919,7 +920,7 @@ function editVeic(id){
   document.getElementById('veic-ano').value=v.ano||'';
   document.getElementById('veic-cor').value=v.cor||'';
   document.getElementById('veic-renavam').value=v.renavam||'';
-  document.getElementById('veic-comb').value=v.comb||'Gasolina Comum';
+  document.getElementById('veic-comb').value=v.comb||'Diesel S-10';
   document.getElementById('veic-km').value=v.kmInicial||'';
   openModal('modal-veic');
 }
@@ -1012,14 +1013,14 @@ function renderDashboard(){
   const latest={};
   S.precos.forEach(p=>{const k=p.postoId+'|'+p.tipo;if(!latest[k]||p.data>latest[k].data)latest[k]=p;});
   const rows=Object.values(latest).sort((a,b)=>b.data.localeCompare(a.data));
-  const gasRows=rows.filter(r=>r.tipo==='Gasolina Comum');
+  const gasRows=rows.filter(r=>r.tipo==='Diesel S-10');
   const minGas=gasRows.length?Math.min(...gasRows.map(r=>r.valor)):null;
   const totalGasto=S.abasts.reduce((s,a)=>s+a.total,0);
   document.getElementById('dash-stats').innerHTML=`
     <div class="stat-card stat-accent"><div class="stat-icon stat-icon-accent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5V20a1 1 0 0 0 1 1h5v-5h4v5h5a1 1 0 0 0 1-1V10.5"/><path d="M21 10.5L12 3 3 10.5"/></svg></div><div class="stat-label">Postos</div><div class="stat-value">${S.postos.length}</div><div class="stat-sub">${rows.length} preços ativos</div></div>
     <div class="stat-card stat-pink"><div class="stat-icon stat-icon-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="stat-label">Motoristas</div><div class="stat-value">${S.mots.length}</div><div class="stat-sub">${S.mots.filter(m=>m.status==='ativo').length} ativos</div></div>
     <div class="stat-card stat-cyan"><div class="stat-icon stat-icon-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><div class="stat-label">Veículos</div><div class="stat-value">${S.veics.length}</div><div class="stat-sub">${S.abasts.length} abastecimentos</div></div>
-    <div class="stat-card stat-amber"><div class="stat-icon stat-icon-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-label">Total gasto</div><div class="stat-value" style="font-size:17px">${fmtBRL2(totalGasto)}</div><div class="stat-sub">${minGas?'Menor gasolina '+fmtBRL(minGas):''}</div></div>
+    <div class="stat-card stat-amber"><div class="stat-icon stat-icon-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-label">Total gasto</div><div class="stat-value" style="font-size:17px">${fmtBRL2(totalGasto)}</div><div class="stat-sub">${minGas?'Menor Diesel S-10 '+fmtBRL(minGas):''}</div></div>
   `;
   document.getElementById('dash-tbody').innerHTML=rows.slice(0,7).map(r=>`
     <tr>
@@ -1141,8 +1142,8 @@ function renderVeiculos(){
         ${lastMot?`<div class="veic-stat-row"><span class="veic-stat-label">Último motorista</span><span style="font-size:12.5px;font-weight:600;color:var(--accent2)">${motName(lastMot.motId)}</span></div>`:''}
         <div style="height:1px;background:var(--border)"></div>
         <div class="veic-stat-row"><span class="veic-stat-label">Média de consumo</span><span class="veic-stat-val" style="color:${m?'var(--green)':'var(--text3)'}">${m?m.toFixed(2)+' km/L':'Sem dados'}</span></div>
-        ${m?`<div class="media-bar"><div class="media-bar-fill" style="width:${Math.min(100,m/20*100)}%;background:${m>=10?'var(--green)':m>=7?'var(--amber)':'var(--red)'}"></div></div>`:''}
-        <div class="veic-stat-row"><span class="veic-stat-label">KM atual</span><span class="veic-stat-val">${lkm?lkm.toLocaleString('pt-BR')+' km':'—'}</span></div>
+        ${m?`<div class="media-bar"><div class="media-bar-fill" style="width:${Math.min(100,m/3.5*100)}%;background:${m>=2.35?'var(--green)':m>=2.20?'var(--amber)':'var(--red)'}"></div></div>`:''}
+        <div class="veic-stat-row"><span class="veic-stat-label">Hodômetro (km)</span><span class="veic-stat-val">${lkm?lkm.toLocaleString('pt-BR')+' km':'—'}</span></div>
         <div class="veic-stat-row"><span class="veic-stat-label">Total gasto</span><span class="veic-stat-val">${fmtBRL2(totalGasto)}</span></div>
         <div class="veic-stat-row"><span class="veic-stat-label">Abastecimentos</span><span class="veic-stat-val">${abCnt}</span></div>
       </div>
@@ -1176,7 +1177,7 @@ function renderPrecos(){
 }
 
 function renderEvolucao(){
-  const fuels=['Gasolina Comum','Gasolina Aditivada','Etanol','Diesel','Diesel S-10','GNV'];
+  const fuels=['Diesel S-10','Diesel Comum','Diesel Marino','Arla 32','GNV','Gasolina Comum'];
   document.getElementById('fuel-tabs').innerHTML=fuels.map(f=>`<button class="fuel-tab${f===activeFuel?' active':''}" onclick="setFuel('${f}')">${f}</button>`).join('');
   document.getElementById('evolucao-title').textContent='Evolução — '+activeFuel;
   const fil=S.precos.filter(p=>p.tipo===activeFuel).sort((a,b)=>a.data.localeCompare(b.data));
@@ -1242,6 +1243,282 @@ function renderAbast(){
   }).join('');
 }
 
+// ── RELATÓRIO DE MÉDIAS ──────────────────────────────────────────────────────
+function fillRelFilters(){
+  const fv=document.getElementById('rel-filter-veic');
+  if(!fv)return;
+  const cur=fv.value;
+  fv.innerHTML='<option value="">Todas as placas</option>'+S.veics.map(v=>`<option value="${v.id}">${v.placa}${v.modelo?' — '+v.modelo:''}</option>`).join('');
+  if(cur)fv.value=cur;
+}
+
+function renderRelatorio(){
+  const fVeic=document.getElementById('rel-filter-veic')?.value||'';
+  const fPeriod=parseInt(document.getElementById('rel-filter-period')?.value||'0')||0;
+
+  let list=S.abasts.filter(a=>a.km&&a.kmAnt&&a.km>a.kmAnt);
+  if(fVeic)list=list.filter(a=>a.veicId===fVeic);
+  if(fPeriod){
+    const cutoff=new Date();cutoff.setDate(cutoff.getDate()-fPeriod);
+    const cutStr=cutoff.toISOString().slice(0,10);
+    list=list.filter(a=>a.data>=cutStr);
+  }
+
+  const has=list.length>0;
+  document.getElementById('rel-empty').style.display=has?'none':'';
+  document.getElementById('rel-main').style.display=has?'':'none';
+
+  const badge=document.getElementById('rel-badge');
+  badge.style.display=has?'':'none';
+  badge.textContent=list.length+' registro'+(list.length!==1?'s':'');
+  if(!has)return;
+
+  // totals
+  const totalKm=list.reduce((s,a)=>s+(a.km-a.kmAnt),0);
+  const totalL=list.reduce((s,a)=>s+a.litros,0);
+  const totalGasto=list.reduce((s,a)=>s+a.total,0);
+  const mediaGeral=totalKm/totalL;
+  const custoKm=totalGasto/totalKm;
+  const motCount=[...new Set(list.map(a=>a.motId).filter(Boolean))].length;
+
+  document.getElementById('rel-stats').innerHTML=`
+    <div class="stat-card stat-teal">
+      <div class="stat-icon stat-icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div class="stat-label">Média geral</div>
+      <div class="stat-value">${mediaGeral.toFixed(2)} <span style="font-size:13px;font-weight:400">km/L</span></div>
+      <div class="stat-sub">${totalKm.toLocaleString('pt-BR')} km rodados</div>
+    </div>
+    <div class="stat-card stat-green">
+      <div class="stat-icon stat-icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4"/></svg></div>
+      <div class="stat-label">Total de litros</div>
+      <div class="stat-value">${totalL.toFixed(1).replace('.',',')} <span style="font-size:13px;font-weight:400">L</span></div>
+      <div class="stat-sub">${list.length} abastecimentos</div>
+    </div>
+    <div class="stat-card stat-amber">
+      <div class="stat-icon stat-icon-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="stat-label">Custo por km</div>
+      <div class="stat-value" style="font-size:17px">R$ ${custoKm.toFixed(3).replace('.',',')}</div>
+      <div class="stat-sub">${fmtBRL2(totalGasto)} total</div>
+    </div>
+    <div class="stat-card stat-pink">
+      <div class="stat-icon stat-icon-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+      <div class="stat-label">Motoristas</div>
+      <div class="stat-value">${motCount}</div>
+      <div class="stat-sub">${[...new Set(list.map(a=>a.veicId).filter(Boolean))].length} veículos</div>
+    </div>
+  `;
+
+  // ── POR MOTORISTA ────────────────────────────────────────────────────────
+  const motMap={};
+  list.forEach(a=>{
+    const mid=a.motId||'_sem';
+    if(!motMap[mid])motMap[mid]={motId:mid,abCnt:0,litros:0,km:0,gasto:0};
+    motMap[mid].abCnt++;
+    motMap[mid].litros+=a.litros;
+    motMap[mid].km+=(a.km-a.kmAnt);
+    motMap[mid].gasto+=a.total;
+  });
+  const motRows=Object.values(motMap).map(r=>({...r,media:r.km/r.litros})).sort((a,b)=>b.media-a.media);
+  const maxMot=motRows.length?motRows[0].media:1;
+
+  document.getElementById('rel-mot-tbody').innerHTML=motRows.map((r,i)=>{
+    const col=r.media>=2.35?'var(--green)':r.media>=2.20?'var(--amber)':'var(--red)';
+    const barW=Math.round((r.media/maxMot)*100);
+    const medal=['🥇','🥈','🥉'][i]||`#${i+1}`;
+    return`<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:30px;height:30px;border-radius:50%;background:${hashColor(r.motId)}22;color:${hashColor(r.motId)};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0">${initials(motName(r.motId))}</div>
+          <strong>${r.motId==='_sem'?'Sem motorista':motName(r.motId)}</strong>
+        </div>
+      </td>
+      <td style="color:var(--text2)">${r.abCnt}</td>
+      <td style="color:var(--text2)">${r.litros.toFixed(1).replace('.',',')} L</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-weight:700;color:${col};min-width:60px">${r.media.toFixed(2)} km/L</span>
+          <div style="flex:1;height:4px;background:var(--border2);border-radius:2px;min-width:60px">
+            <div style="height:100%;width:${barW}%;background:${col};border-radius:2px;transition:width 0.4s"></div>
+          </div>
+        </div>
+      </td>
+      <td style="font-size:15px">${medal}</td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px">Sem dados</td></tr>';
+
+  // ── POR VEÍCULO ──────────────────────────────────────────────────────────
+  const veicMap={};
+  list.forEach(a=>{
+    const vid=a.veicId||'_sem';
+    if(!veicMap[vid])veicMap[vid]={veicId:vid,abCnt:0,litros:0,km:0,lastKm:0};
+    veicMap[vid].abCnt++;
+    veicMap[vid].litros+=a.litros;
+    veicMap[vid].km+=(a.km-a.kmAnt);
+    if(a.km>veicMap[vid].lastKm)veicMap[vid].lastKm=a.km;
+  });
+  const veicRows=Object.values(veicMap).map(r=>({...r,media:r.km/r.litros})).sort((a,b)=>b.media-a.media);
+
+  document.getElementById('rel-veic-tbody').innerHTML=veicRows.map(r=>{
+    const v=S.veics.find(x=>x.id===r.veicId);
+    const col=r.media>=2.35?'var(--green)':r.media>=2.20?'var(--amber)':'var(--red)';
+    return`<tr>
+      <td>${placaBadge(r.veicId==='_sem'?'?':veicPlaca(r.veicId))}</td>
+      <td style="color:var(--text2)">${v?v.modelo||v.marca||'—':'—'}</td>
+      <td style="color:var(--text2)">${r.abCnt}</td>
+      <td><span style="font-weight:700;color:${col}">${r.media.toFixed(2)} km/L</span></td>
+      <td style="color:var(--text3)">${r.lastKm?r.lastKm.toLocaleString('pt-BR')+' km':'—'}</td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px">Sem dados</td></tr>';
+
+  // ── CRUZAMENTO MOTORISTA × PLACA ─────────────────────────────────────────
+  const crossMap={};
+  list.forEach(a=>{
+    const k=(a.motId||'_sem')+'|'+(a.veicId||'_sem');
+    if(!crossMap[k])crossMap[k]={motId:a.motId,veicId:a.veicId,abCnt:0,litros:0,km:0,gasto:0};
+    crossMap[k].abCnt++;
+    crossMap[k].litros+=a.litros;
+    crossMap[k].km+=(a.km-a.kmAnt);
+    crossMap[k].gasto+=a.total;
+  });
+  const crossRows=Object.values(crossMap).map(r=>({...r,media:r.km/r.litros,custoKm:r.km>0?r.gasto/r.km:0})).sort((a,b)=>b.media-a.media);
+
+  document.getElementById('rel-cross-tbody').innerHTML=crossRows.map(r=>{
+    const v=S.veics.find(x=>x.id===r.veicId);
+    const col=r.media>=2.35?'var(--green)':r.media>=2.20?'var(--amber)':'var(--red)';
+    return`<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;border-radius:50%;background:${hashColor(r.motId||'x')}22;color:${hashColor(r.motId||'x')};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0">${initials(motName(r.motId))}</div>
+          <strong>${r.motId?motName(r.motId):'Sem motorista'}</strong>
+        </div>
+      </td>
+      <td>${placaBadge(r.veicId?veicPlaca(r.veicId):'?')}</td>
+      <td style="color:var(--text2)">${v?v.modelo||v.marca||'—':'—'}</td>
+      <td style="color:var(--text2)">${r.abCnt}</td>
+      <td style="color:var(--text2)">${r.litros.toFixed(1).replace('.',',')} L</td>
+      <td style="color:var(--text2)">${r.km.toLocaleString('pt-BR')} km</td>
+      <td><span style="font-weight:700;color:${col}">${r.media.toFixed(2)} km/L</span></td>
+      <td style="color:var(--text3)">R$ ${r.custoKm.toFixed(3).replace('.',',')}/km</td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">Sem dados</td></tr>';
+}
+
+// ── SEED DE DADOS FICTÍCIOS ──────────────────────────────────────────────────
+function seedData(){
+  // Reset se dados antigos (veículos de passeio)
+  const hasOldData=S.veics.some(v=>['HJK-2341','RXB-7892','QPA-5563'].includes(v.placa));
+  if(hasOldData){S.postos=[];S.mots=[];S.veics=[];S.precos=[];S.abasts=[];save();}
+  if(S.postos.length||S.mots.length||S.veics.length)return;
+
+  const mId1=uid(),mId2=uid(),mId3=uid(),mId4=uid();
+  const vId1=uid(),vId2=uid(),vId3=uid();
+  const pId1=uid(),pId2=uid(),pId3=uid();
+
+  S.postos=[
+    {id:pId1,nome:'TruckStop BR-040',bandeira:'Petrobras BR',tel:'(35) 3821-1111',end:'Rod. BR-040, km 718',cidade:'Lavras',estado:'MG',fuels:['Diesel S-10','Diesel Comum','Arla 32']},
+    {id:pId2,nome:'Posto Rodoviário Paulista',bandeira:'Ipiranga',tel:'(35) 3821-2222',end:'Rod. MG-338, km 12',cidade:'Lavras',estado:'MG',fuels:['Diesel S-10','Diesel Comum','Diesel Marino','Arla 32','GNV']},
+    {id:pId3,nome:'Granel Diesel & Arla',bandeira:'Sem bandeira',tel:'(35) 3821-3333',end:'Distrito Industrial, Lote 7',cidade:'Lavras',estado:'MG',fuels:['Diesel S-10','Diesel Comum','Arla 32']},
+  ];
+
+  S.mots=[
+    {id:mId1,nome:'Carlos Henrique Silva',cpf:'123.456.789-00',tel:'(35) 99812-1001',email:'carlos.silva@frota.com',cnh:'12345678901',cat:'E',cnhVal:'2027-06-15',status:'ativo',obs:'Habilitado para bitrem e rodotrem. 15 anos de experiência.'},
+    {id:mId2,nome:'Ronaldo Ferreira Gomes',cpf:'234.567.890-11',tel:'(35) 99812-1002',email:'ronaldo.gomes@frota.com',cnh:'23456789012',cat:'E',cnhVal:'2026-11-20',status:'ativo',obs:'Especialista em cargas frigorificadas.'},
+    {id:mId3,nome:'Roberto Lopes Neto',cpf:'345.678.901-22',tel:'(35) 99812-1003',email:'roberto.lopes@frota.com',cnh:'34567890123',cat:'D',cnhVal:'2026-08-10',status:'ativo',obs:'Habilitado para ônibus e caminhão toco.'},
+    {id:mId4,nome:'Márcio Augusto Dias',cpf:'456.789.012-33',tel:'(35) 99812-1004',email:'marcio.dias@frota.com',cnh:'45678901234',cat:'E',cnhVal:'2028-08-05',status:'ferias',obs:'Retorno previsto: 01/07/2026. Veículo: Carreta refrigerada.'},
+  ];
+
+  S.veics=[
+    {id:vId1,placa:'QRT-4821',modelo:'FH 540 6x4 Cavalo Mecânico',marca:'Volvo',ano:'2022',cor:'Branco',renavam:'11223344556',comb:'Diesel S-10',kmInicial:310000},
+    {id:vId2,placa:'BNM-3307',modelo:'R 450 A 6x2 Cavalo Mecânico',marca:'Scania',ano:'2021',cor:'Vermelho',renavam:'22334455667',comb:'Diesel S-10',kmInicial:185000},
+    {id:vId3,placa:'KSW-0094',modelo:'Actros 2651 6x4 Cavalo',marca:'Mercedes-Benz',ano:'2020',cor:'Cinza',renavam:'33445566778',comb:'Diesel S-10',kmInicial:422000},
+  ];
+
+  // preços históricos
+  const precoEntries=[
+    {postoId:pId1,tipo:'Diesel S-10',valor:6.349,data:'2025-11-01'},
+    {postoId:pId1,tipo:'Diesel S-10',valor:6.429,data:'2025-12-15'},
+    {postoId:pId1,tipo:'Diesel S-10',valor:6.499,data:'2026-01-10'},
+    {postoId:pId1,tipo:'Diesel S-10',valor:6.519,data:'2026-02-20'},
+    {postoId:pId1,tipo:'Diesel S-10',valor:6.589,data:'2026-04-05'},
+    {postoId:pId1,tipo:'Diesel S-10',valor:6.549,data:'2026-05-18'},
+    {postoId:pId1,tipo:'Diesel Comum',valor:6.149,data:'2025-11-01'},
+    {postoId:pId1,tipo:'Diesel Comum',valor:6.229,data:'2026-01-10'},
+    {postoId:pId1,tipo:'Diesel Comum',valor:6.299,data:'2026-04-05'},
+    {postoId:pId1,tipo:'Arla 32',valor:3.299,data:'2025-11-01'},
+    {postoId:pId1,tipo:'Arla 32',valor:3.349,data:'2026-04-05'},
+    {postoId:pId2,tipo:'Diesel S-10',valor:6.319,data:'2025-11-01'},
+    {postoId:pId2,tipo:'Diesel S-10',valor:6.399,data:'2025-12-15'},
+    {postoId:pId2,tipo:'Diesel S-10',valor:6.469,data:'2026-01-10'},
+    {postoId:pId2,tipo:'Diesel S-10',valor:6.489,data:'2026-02-20'},
+    {postoId:pId2,tipo:'Diesel S-10',valor:6.559,data:'2026-04-05'},
+    {postoId:pId2,tipo:'Diesel S-10',valor:6.519,data:'2026-05-18'},
+    {postoId:pId2,tipo:'Diesel Marino',valor:6.799,data:'2026-04-05'},
+    {postoId:pId2,tipo:'GNV',valor:4.899,data:'2026-04-05'},
+    {postoId:pId2,tipo:'Arla 32',valor:3.279,data:'2026-04-05'},
+    {postoId:pId3,tipo:'Diesel S-10',valor:6.289,data:'2025-11-01'},
+    {postoId:pId3,tipo:'Diesel S-10',valor:6.369,data:'2026-01-10'},
+    {postoId:pId3,tipo:'Diesel S-10',valor:6.439,data:'2026-04-05'},
+    {postoId:pId3,tipo:'Diesel S-10',valor:6.409,data:'2026-05-18'},
+    {postoId:pId3,tipo:'Diesel Comum',valor:6.099,data:'2026-01-10'},
+    {postoId:pId3,tipo:'Diesel Comum',valor:6.179,data:'2026-04-05'},
+    {postoId:pId3,tipo:'Arla 32',valor:3.249,data:'2026-01-10'},
+    {postoId:pId3,tipo:'Arla 32',valor:3.299,data:'2026-04-05'},
+  ];
+  S.precos=precoEntries.map(e=>({id:uid(),...e}));
+
+  // abastecimentos — veículo 1 (HJK-2341 Gol)
+  const abastRaw=[
+    // QRT-4821 Volvo FH — Carlos e Ronaldo
+    {motId:mId1,veicId:vId1,postoId:pId1,tipo:'Diesel S-10',litros:420.0,preco:6.349,data:'2025-11-08',km:312800,kmAnt:310000},
+    {motId:mId1,veicId:vId1,postoId:pId3,tipo:'Diesel S-10',litros:395.0,preco:6.289,data:'2025-11-22',km:315550,kmAnt:312800},
+    {motId:mId2,veicId:vId1,postoId:pId2,tipo:'Diesel S-10',litros:410.0,preco:6.399,data:'2025-12-05',km:318380,kmAnt:315550},
+    {motId:mId2,veicId:vId1,postoId:pId1,tipo:'Diesel S-10',litros:430.0,preco:6.429,data:'2025-12-19',km:321200,kmAnt:318380},
+    {motId:mId1,veicId:vId1,postoId:pId3,tipo:'Diesel S-10',litros:405.0,preco:6.469,data:'2026-01-12',km:324070,kmAnt:321200},
+    {motId:mId2,veicId:vId1,postoId:pId2,tipo:'Diesel S-10',litros:415.0,preco:6.489,data:'2026-01-28',km:326950,kmAnt:324070},
+    {motId:mId1,veicId:vId1,postoId:pId1,tipo:'Diesel S-10',litros:400.0,preco:6.519,data:'2026-02-14',km:329720,kmAnt:326950},
+    {motId:mId2,veicId:vId1,postoId:pId3,tipo:'Diesel S-10',litros:425.0,preco:6.439,data:'2026-03-03',km:332710,kmAnt:329720},
+    {motId:mId1,veicId:vId1,postoId:pId1,tipo:'Diesel S-10',litros:412.0,preco:6.589,data:'2026-03-20',km:335560,kmAnt:332710},
+    {motId:mId2,veicId:vId1,postoId:pId2,tipo:'Diesel S-10',litros:398.0,preco:6.559,data:'2026-04-07',km:338360,kmAnt:335560},
+    {motId:mId1,veicId:vId1,postoId:pId3,tipo:'Diesel S-10',litros:418.0,preco:6.409,data:'2026-04-24',km:341280,kmAnt:338360},
+    {motId:mId2,veicId:vId1,postoId:pId1,tipo:'Diesel S-10',litros:407.0,preco:6.549,data:'2026-05-12',km:344100,kmAnt:341280},
+    {motId:mId1,veicId:vId1,postoId:pId2,tipo:'Diesel S-10',litros:422.0,preco:6.519,data:'2026-05-29',km:347020,kmAnt:344100},
+    // BNM-3307 Scania R450 — Ronaldo e Roberto
+    {motId:mId2,veicId:vId2,postoId:pId2,tipo:'Diesel S-10',litros:380.0,preco:6.399,data:'2025-11-10',km:187650,kmAnt:185000},
+    {motId:mId3,veicId:vId2,postoId:pId1,tipo:'Diesel S-10',litros:365.0,preco:6.349,data:'2025-11-25',km:190180,kmAnt:187650},
+    {motId:mId2,veicId:vId2,postoId:pId3,tipo:'Diesel S-10',litros:390.0,preco:6.289,data:'2025-12-12',km:192900,kmAnt:190180},
+    {motId:mId3,veicId:vId2,postoId:pId2,tipo:'Diesel S-10',litros:375.0,preco:6.469,data:'2026-01-06',km:195550,kmAnt:192900},
+    {motId:mId2,veicId:vId2,postoId:pId1,tipo:'Diesel S-10',litros:385.0,preco:6.519,data:'2026-01-24',km:198250,kmAnt:195550},
+    {motId:mId3,veicId:vId2,postoId:pId3,tipo:'Diesel S-10',litros:370.0,preco:6.439,data:'2026-02-10',km:200850,kmAnt:198250},
+    {motId:mId2,veicId:vId2,postoId:pId2,tipo:'Diesel S-10',litros:395.0,preco:6.489,data:'2026-02-27',km:203620,kmAnt:200850},
+    {motId:mId3,veicId:vId2,postoId:pId1,tipo:'Diesel S-10',litros:378.0,preco:6.589,data:'2026-03-18',km:206290,kmAnt:203620},
+    {motId:mId2,veicId:vId2,postoId:pId3,tipo:'Diesel S-10',litros:392.0,preco:6.409,data:'2026-04-04',km:209050,kmAnt:206290},
+    {motId:mId4,veicId:vId2,postoId:pId2,tipo:'Diesel S-10',litros:368.0,preco:6.559,data:'2026-04-22',km:211640,kmAnt:209050},
+    {motId:mId2,veicId:vId2,postoId:pId1,tipo:'Diesel S-10',litros:388.0,preco:6.549,data:'2026-05-10',km:214370,kmAnt:211640},
+    // KSW-0094 Mercedes Actros — Carlos, Márcio e Roberto
+    {motId:mId1,veicId:vId3,postoId:pId3,tipo:'Diesel S-10',litros:460.0,preco:6.289,data:'2025-11-15',km:425200,kmAnt:422000},
+    {motId:mId4,veicId:vId3,postoId:pId1,tipo:'Diesel S-10',litros:445.0,preco:6.349,data:'2025-12-01',km:428300,kmAnt:425200},
+    {motId:mId3,veicId:vId3,postoId:pId2,tipo:'Diesel S-10',litros:470.0,preco:6.399,data:'2025-12-16',km:431530,kmAnt:428300},
+    {motId:mId1,veicId:vId3,postoId:pId3,tipo:'Diesel S-10',litros:452.0,preco:6.469,data:'2026-01-04',km:434650,kmAnt:431530},
+    {motId:mId4,veicId:vId3,postoId:pId1,tipo:'Diesel S-10',litros:465.0,preco:6.519,data:'2026-01-22',km:437810,kmAnt:434650},
+    {motId:mId3,veicId:vId3,postoId:pId2,tipo:'Diesel S-10',litros:448.0,preco:6.489,data:'2026-02-08',km:440840,kmAnt:437810},
+    {motId:mId1,veicId:vId3,postoId:pId3,tipo:'Diesel S-10',litros:458.0,preco:6.439,data:'2026-02-26',km:444020,kmAnt:440840},
+    {motId:mId4,veicId:vId3,postoId:pId1,tipo:'Diesel S-10',litros:442.0,preco:6.589,data:'2026-03-15',km:447030,kmAnt:444020},
+    {motId:mId1,veicId:vId3,postoId:pId2,tipo:'Diesel S-10',litros:463.0,preco:6.559,data:'2026-04-02',km:450200,kmAnt:447030},
+    {motId:mId3,veicId:vId3,postoId:pId3,tipo:'Diesel S-10',litros:455.0,preco:6.409,data:'2026-04-19',km:453280,kmAnt:450200},
+    {motId:mId1,veicId:vId3,postoId:pId1,tipo:'Diesel S-10',litros:469.0,preco:6.549,data:'2026-05-07',km:456470,kmAnt:453280},
+    {motId:mId4,veicId:vId3,postoId:pId2,tipo:'Diesel S-10',litros:447.0,preco:6.519,data:'2026-05-24',km:459510,kmAnt:456470},
+  ];
+  S.abasts=abastRaw.map(e=>({
+    id:uid(),...e,
+    total:e.litros*e.preco,
+    media:e.km&&e.kmAnt&&e.km>e.kmAnt?(e.km-e.kmAnt)/e.litros:null,
+    obs:''
+  }));
+
+  save();
+}
+
+seedData();
 renderDashboard();
 </script>
 </body>
