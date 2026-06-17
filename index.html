@@ -210,6 +210,14 @@ select.filter-sel option{background:var(--bg3)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
       Relatório de Médias
     </button>
+    <button class="nav-item" data-page="precos-posto">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Preços por Posto
+    </button>
+    <button class="nav-item" data-page="monitor">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/><circle cx="6" cy="12" r="0"/></svg>
+      Monitor Semanal
+    </button>
     <div class="nav-section">Preços</div>
     <button class="nav-item" data-page="precos">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
@@ -261,6 +269,33 @@ select.filter-sel option{background:var(--bg3)}
       </div>
       <div id="dash-main" style="display:none">
         <div class="stats-grid" id="dash-stats"></div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-header">
+            <div><div class="card-title">Gasto por Posto</div><div class="card-sub">Total investido em combustível, por posto</div></div>
+            <span class="pill pill-accent" id="dash-gasto-badge"></span>
+          </div>
+          <div style="padding:18px"><canvas id="dash-gasto-chart" height="220" role="img" aria-label="Gráfico de gasto total por posto">Gráfico de gastos por posto.</canvas></div>
+        </div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-header">
+            <div><div class="card-title">Ranking de Postos</div><div class="card-sub">Ordenado por valor total gasto, com litros e ticket médio</div></div>
+          </div>
+          <div style="overflow-x:auto;max-height:420px;overflow-y:auto">
+            <table>
+              <thead><tr>
+                <th style="width:48px">#</th>
+                <th>Posto</th>
+                <th>Total gasto</th>
+                <th>% do total</th>
+                <th>Litros</th>
+                <th>Abast.</th>
+                <th>Preço médio/L</th>
+                <th>Ticket médio</th>
+              </tr></thead>
+              <tbody id="dash-ranking-tbody"></tbody>
+            </table>
+          </div>
+        </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <div class="card">
             <div class="card-header"><div><div class="card-title">Preços mais recentes</div><div class="card-sub">Última atualização por posto</div></div></div>
@@ -343,6 +378,17 @@ select.filter-sel option{background:var(--bg3)}
         <span class="page-badge" id="veic-badge" style="display:none"></span>
       </div>
       <div class="topbar-actions">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="search" class="search-input" id="veic-search" placeholder="Buscar placa…" oninput="renderVeiculos()">
+        </div>
+        <select class="filter-sel" id="veic-filter-marca" onchange="onVeicMarcaChange()">
+          <option value="">Todas as marcas</option>
+        </select>
+        <select class="filter-sel" id="veic-filter-modelo" onchange="renderVeiculos()">
+          <option value="">Todos os modelos</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" id="veic-clear-filters" onclick="clearVeicFilters()" style="display:none">Limpar filtros</button>
         <button class="btn btn-primary" onclick="openModal('modal-veic')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Novo Veículo
@@ -355,6 +401,12 @@ select.filter-sel option{background:var(--bg3)}
         <div class="empty-title">Nenhum veículo cadastrado</div>
         <div class="empty-desc">Cadastre veículos com placa para acompanhar consumo e média km/L.</div>
         <button class="btn btn-primary" style="margin-top:4px" onclick="openModal('modal-veic')">Cadastrar veículo</button>
+      </div>
+      <div id="veic-noresults" class="empty-state" style="display:none">
+        <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+        <div class="empty-title">Nenhum veículo encontrado</div>
+        <div class="empty-desc">Ajuste os filtros de marca, modelo ou a busca por placa.</div>
+        <button class="btn btn-secondary" style="margin-top:4px" onclick="clearVeicFilters()">Limpar filtros</button>
       </div>
       <div id="veic-grid-wrap" style="display:none"><div class="veic-grid" id="veic-grid"></div></div>
     </div>
@@ -463,6 +515,104 @@ select.filter-sel option{background:var(--bg3)}
             </table>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PREÇOS POR POSTO -->
+  <section id="page-precos-posto" class="hidden">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="page-title">Preços por Posto</span>
+        <span class="page-badge" id="pp-badge" style="display:none"></span>
+      </div>
+      <div class="topbar-actions">
+        <select class="filter-sel" id="pp-filter-period" onchange="renderPrecosPosto()">
+          <option value="">Todo o período</option>
+          <option value="30">Últimos 30 dias</option>
+          <option value="60">Últimos 60 dias</option>
+          <option value="90">Últimos 90 dias</option>
+        </select>
+      </div>
+    </div>
+    <div class="content">
+      <div id="pp-empty" class="empty-state">
+        <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="empty-title">Sem abastecimentos registrados</div>
+        <div class="empty-desc">Importe ou registre abastecimentos para analisar variações de preço por posto.</div>
+      </div>
+      <div id="pp-main" style="display:none">
+        <!-- Alertas de preço mais caro -->
+        <div id="pp-alerts" style="margin-bottom:18px"></div>
+        <!-- Stats gerais -->
+        <div id="pp-stats" class="stats-grid" style="margin-bottom:18px"></div>
+        <!-- Tabela por posto -->
+        <div id="pp-postos-grid" style="display:flex;flex-direction:column;gap:14px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MONITOR SEMANAL -->
+  <section id="page-monitor" class="hidden">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="page-title">Monitor Semanal de Preços</span>
+        <span class="page-badge" id="mon-badge" style="display:none"></span>
+      </div>
+      <div class="topbar-actions">
+        <select class="filter-sel" id="mon-filter-comb" onchange="renderMonitor()">
+          <option value="">Todos os combustíveis</option>
+          <option value="Diesel S-10">Diesel S-10</option>
+          <option value="Diesel Comum">Diesel Comum</option>
+          <option value="Arla 32">Arla 32</option>
+          <option value="GNV">GNV</option>
+          <option value="Gasolina Comum">Gasolina Comum</option>
+        </select>
+        <button class="btn btn-primary" onclick="openModal('modal-semana')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Registrar Preço
+        </button>
+      </div>
+    </div>
+    <div class="content">
+      <div id="mon-empty" class="empty-state">
+        <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="empty-title">Sem abastecimentos para analisar</div>
+        <div class="empty-desc">Importe ou registre abastecimentos. O monitor calcula automaticamente a média de preço pago por semana e detecta tendências de alta ou queda.</div>
+        <button class="btn btn-secondary" style="margin-top:4px" onclick="showPage('abast')">Ver Abastecimentos</button>
+      </div>
+      <div id="mon-main" style="display:none">
+        <!-- Alertas -->
+        <div id="mon-alerts" style="margin-bottom:18px"></div>
+        <!-- Stats -->
+        <div id="mon-stats" class="stats-grid" style="margin-bottom:18px"></div>
+        <!-- Gráfico + tabela -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Evolução semanal</div><div class="card-sub">Variação de preço semana a semana</div></div>
+            </div>
+            <div style="padding:16px"><canvas id="mon-chart" height="240" role="img" aria-label="Gráfico de evolução de preço semanal por combustível">Gráfico de preços semanais.</canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Últimas semanas</div></div>
+            <table><thead><tr><th>Semana</th><th>Combustível</th><th>Preço médio/L</th><th>vs Semana Ant.</th><th>Gasto</th></tr></thead>
+            <tbody id="mon-tbody"></tbody></table>
+          </div>
+        </div>
+        <!-- Por combustível -->
+        <div id="mon-por-comb" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px"></div>
+        <!-- Separador -->
+        <div style="height:1px;background:var(--border);margin:8px 0"></div>
+        <!-- Por posto -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--text)">Monitoramento por Posto</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px">Comparativo do preço médio pago nesta semana vs semana anterior em cada posto</div>
+          </div>
+        </div>
+        <div id="mon-alertas-posto" style="margin-bottom:12px"></div>
+        <div id="mon-por-posto" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px"></div>
       </div>
     </div>
   </section>
@@ -742,6 +892,66 @@ select.filter-sel option{background:var(--bg3)}
   </div>
 </div>
 
+<!-- MODAL PREÇO SEMANAL -->
+<div class="modal-backdrop" id="modal-semana">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-semana-title">Registrar Preço Semanal</div>
+        <div class="modal-sub" id="modal-semana-sub">Preencha o preço — o histórico de abastecimentos será consultado automaticamente</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-semana')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="semana-edit-id">
+
+      <div class="field-row">
+        <div class="field">
+          <label>Combustível *</label>
+          <select id="semana-comb" onchange="onSemanaChange()">
+            <option>Diesel S-10</option>
+            <option>Diesel Comum</option>
+            <option>Arla 32</option>
+            <option>GNV</option>
+            <option>Gasolina Comum</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Semana (início) *</label>
+          <input type="date" id="semana-data" onchange="onSemanaChange()">
+        </div>
+      </div>
+
+      <!-- Histórico da semana anterior (auto-preenchido) -->
+      <div id="semana-historico" style="display:none;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;font-size:13px">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Histórico — abastecimentos reais</div>
+        <div id="semana-hist-rows"></div>
+      </div>
+
+      <div class="field">
+        <label>Preço desta semana (R$/L) *</label>
+        <input type="number" id="semana-preco" step="0.001" min="0" placeholder="Ex: 6.549" oninput="onSemanaPrecoChange()" style="font-size:16px;font-weight:700;letter-spacing:0.01em">
+      </div>
+
+      <!-- Alerta em tempo real -->
+      <div id="semana-alert" style="display:none;border-radius:8px;padding:12px 14px;font-size:13px"></div>
+
+      <div class="field">
+        <label>Fornecedor / Referência</label>
+        <input type="text" id="semana-ref" placeholder="ANP, Petrobras, média regional…">
+      </div>
+      <div class="field">
+        <label>Observações</label>
+        <textarea id="semana-obs" placeholder="Alta por embargo, feriado, greve…" style="min-height:48px"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-semana')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveSemana()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"><span class="toast-dot"></span><span id="toast-msg"></span></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -772,7 +982,7 @@ async function db(table,opts={}){
   return txt?JSON.parse(txt):[];
 }
 
-const S={postos:[],precos:[],abasts:[],veics:[],mots:[]};
+const S={postos:[],precos:[],abasts:[],veics:[],mots:[],semanas:[]};
 
 // Mappers banco → app
 const mapPosto=r=>({...r,fuels:r.fuels||[]});
@@ -790,18 +1000,20 @@ function showLoading(on){
 async function loadAll(){
   showLoading(true);
   try{
-    const [postos,mots,veics,precos,abasts]=await Promise.all([
+    const [postos,mots,veics,precos,abasts,semanas]=await Promise.all([
       db('postos?select=*&order=created_at'),
       db('motoristas?select=*&order=created_at'),
       db('veiculos?select=*&order=created_at'),
       db('precos?select=*&order=created_at'),
       db('abastecimentos?select=*&order=created_at'),
+      db('precos_semana?select=*&order=data'),
     ]);
     S.postos=postos.map(mapPosto);
     S.mots=mots.map(mapMot);
     S.veics=veics.map(mapVeic);
     S.precos=precos.map(mapPreco);
     S.abasts=abasts.map(mapAbast);
+    S.semanas=semanas.map(r=>({...r,preco:parseFloat(r.preco)}));
   }catch(e){
     toast('Erro ao conectar com o banco. Verifique o Supabase.');
     console.error(e);
@@ -858,7 +1070,7 @@ function calcMediaMot(motId){
 }
 
 // NAV
-const pages=['dashboard','postos','motoristas','veiculos','abast','relatorio','precos','evolucao'];
+const pages=['dashboard','postos','motoristas','veiculos','abast','relatorio','precos-posto','monitor','precos','evolucao'];
 function showPage(id){
   pages.forEach(p=>{
     document.getElementById('page-'+p).classList.toggle('hidden',p!==id);
@@ -872,6 +1084,8 @@ function showPage(id){
   if(id==='abast'){fillAbastSelects();renderAbast();}
   if(id==='abast'){fillAbastSelects();renderAbast();}
   if(id==='relatorio'){fillRelFilters();renderRelatorio();}
+  if(id==='precos-posto')renderPrecosPosto();
+  if(id==='monitor')renderMonitor();
   if(id==='evolucao')renderEvolucao();
 }
 document.querySelectorAll('.nav-item[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
@@ -884,6 +1098,12 @@ function openModal(id){
   document.getElementById(id).classList.add('open');
   if(id==='modal-preco'&&!document.getElementById('preco-edit-id').value)document.getElementById('preco-data').value=today();
   if(id==='modal-abast'&&!document.getElementById('abast-edit-id').value)document.getElementById('abast-data').value=today();
+  if(id==='modal-semana'&&!document.getElementById('semana-edit-id').value){
+    // Default para segunda-feira da semana atual
+    const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));
+    document.getElementById('semana-data').value=d.toISOString().slice(0,10);
+  }
+  if(id==='modal-semana')setTimeout(onSemanaChange,0);
 }
 function closeModal(id){
   document.getElementById(id).classList.remove('open');
@@ -913,6 +1133,13 @@ function closeModal(id){
     document.getElementById('abast-edit-id').value='';
     ['abast-litros','abast-preco','abast-km','abast-km-ant','abast-obs'].forEach(f=>document.getElementById(f).value='');
     document.getElementById('abast-data').value='';
+  }
+  if(id==='modal-semana'){
+    document.getElementById('semana-edit-id').value='';
+    document.getElementById('modal-semana-title').textContent='Registrar Preço Semanal';
+    ['semana-preco','semana-ref','semana-obs'].forEach(f=>document.getElementById(f).value='');
+    document.getElementById('semana-comb').selectedIndex=0;
+    document.getElementById('semana-data').value='';
   }
 }
 document.querySelectorAll('.modal-backdrop').forEach(bd=>bd.addEventListener('click',e=>{if(e.target===bd)bd.classList.remove('open');}));
@@ -1222,6 +1449,118 @@ function renderDashboard(){
       <td style="color:var(--text3)">${abCnt}</td>
     </tr>`;
   }).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:22px">Nenhum veículo ainda</td></tr>';
+
+  renderDashGastoPosto();
+}
+
+let dashGastoChart=null;
+function renderDashGastoPosto(){
+  // Agrupa gasto total por posto
+  const byPosto={};
+  S.abasts.forEach(a=>{
+    if(!a.postoId)return;
+    if(!byPosto[a.postoId])byPosto[a.postoId]={gasto:0,litros:0,n:0};
+    byPosto[a.postoId].gasto+=a.total;
+    byPosto[a.postoId].litros+=a.litros;
+    byPosto[a.postoId].n++;
+  });
+
+  const rows=Object.entries(byPosto)
+    .map(([pid,v])=>({pid,nome:postoName(pid),...v}))
+    .sort((a,b)=>b.gasto-a.gasto);
+
+  const badge=document.getElementById('dash-gasto-badge');
+  badge.textContent=rows.length+' posto'+(rows.length!==1?'s':'');
+
+  // ── Tabela de ranking ────────────────────────────────────────────────────
+  const totalGastoGeral=rows.reduce((s,r)=>s+r.gasto,0);
+  document.getElementById('dash-ranking-tbody').innerHTML=rows.map((r,i)=>{
+    const pct=totalGastoGeral?(r.gasto/totalGastoGeral*100):0;
+    const precoMedio=r.litros?r.gasto/r.litros:0;
+    const ticketMedio=r.n?r.gasto/r.n:0;
+    const medalha=i===0?'🥇':i===1?'🥈':i===2?'🥉':null;
+    return`<tr>
+      <td style="text-align:center;font-weight:700;color:var(--text3)">${medalha||('#'+(i+1))}</td>
+      <td><div style="display:flex;align-items:center;gap:9px"><div class="posto-avatar" style="background:${hashColor(r.pid)}22;color:${hashColor(r.pid)}">${initials(r.nome)}</div><strong>${r.nome}</strong></div></td>
+      <td><span class="price-val" style="font-size:14px">${fmtBRL2(r.gasto)}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:var(--text2);min-width:42px">${pct.toFixed(1)}%</span>
+          <div style="flex:1;height:5px;background:var(--border2);border-radius:3px;min-width:50px;max-width:100px">
+            <div style="height:100%;width:${pct}%;background:${hashColor(r.pid)};border-radius:3px"></div>
+          </div>
+        </div>
+      </td>
+      <td style="color:var(--text2)">${r.litros.toLocaleString('pt-BR',{maximumFractionDigits:0})} L</td>
+      <td style="color:var(--text2)">${r.n}</td>
+      <td style="color:var(--text2)">R$ ${precoMedio.toFixed(3).replace('.',',')}</td>
+      <td style="color:var(--text3)">${fmtBRL2(ticketMedio)}</td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Nenhum dado disponível</td></tr>';
+
+  const wrap=document.getElementById('dash-gasto-chart').parentElement;
+  if(!rows.length){
+    wrap.innerHTML='<div style="text-align:center;color:var(--text3);padding:30px;font-size:13px">Nenhum abastecimento com posto vinculado ainda.</div>';
+    return;
+  }
+  // Garante que o canvas existe (caso tenha sido substituído pelo empty state antes)
+  if(!document.getElementById('dash-gasto-chart')){
+    wrap.innerHTML='<canvas id="dash-gasto-chart" height="220" role="img" aria-label="Gráfico de gasto total por posto">Gráfico de gastos por posto.</canvas>';
+  }
+
+  const ctx=document.getElementById('dash-gasto-chart').getContext('2d');
+  if(dashGastoChart)dashGastoChart.destroy();
+
+  const colors=rows.map(r=>hashColor(r.pid));
+  const maxLabelLen=28;
+  const shortLabels=rows.map(r=>r.nome.length>maxLabelLen?r.nome.slice(0,maxLabelLen-1)+'…':r.nome);
+
+  // Altura dinâmica: ~34px por barra, mínimo 220
+  const chartHeight=Math.max(220,rows.length*34);
+  document.getElementById('dash-gasto-chart').style.height=chartHeight+'px';
+  wrap.style.maxHeight='420px';
+  wrap.style.overflowY=rows.length>10?'auto':'visible';
+
+  dashGastoChart=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:shortLabels,
+      datasets:[{
+        label:'Total gasto',
+        data:rows.map(r=>r.gasto),
+        backgroundColor:colors.map(c=>c+'cc'),
+        borderColor:colors,
+        borderWidth:1.5,
+        borderRadius:6,
+        maxBarThickness:28,
+      }],
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'nearest',axis:'y',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#16161a',borderColor:'#2a2a32',borderWidth:1,
+          titleColor:'#f0f0f4',bodyColor:'#9090a0',
+          padding:10,
+          callbacks:{
+            title:c=>rows[c[0].dataIndex].nome,
+            label:c=>{
+              const r=rows[c.dataIndex];
+              return[`Total: ${fmtBRL2(r.gasto)}`,`${r.n} abastecimentos · ${r.litros.toFixed(0)} L`,`Médio: ${fmtBRL2(r.gasto/r.n)} / abast.`];
+            },
+          },
+        },
+      },
+      onHover:(evt,elements)=>{evt.native.target.style.cursor=elements.length?'pointer':'default';},
+      scales:{
+        x:{grid:{color:'#2a2a32'},ticks:{color:'#5a5a6a',font:{size:10},callback:v=>'R$ '+Number(v).toLocaleString('pt-BR',{maximumFractionDigits:0})}},
+        y:{grid:{display:false},ticks:{color:'#9090a0',font:{size:11.5},autoSkip:false}},
+      },
+    },
+  });
 }
 
 function renderPostos(){
@@ -1298,13 +1637,69 @@ function openAbastForMot(motId){
   openModal('modal-abast');
 }
 
+function fillVeicFilters(){
+  const selMarca=document.getElementById('veic-filter-marca');
+  const curMarca=selMarca.value;
+  const marcas=[...new Set(S.veics.map(v=>v.marca).filter(Boolean))].sort();
+  selMarca.innerHTML='<option value="">Todas as marcas</option>'+marcas.map(m=>`<option value="${m}">${m}</option>`).join('');
+  if(curMarca&&marcas.includes(curMarca))selMarca.value=curMarca;
+
+  const selModelo=document.getElementById('veic-filter-modelo');
+  const curModelo=selModelo.value;
+  // Modelos filtrados pela marca selecionada (se houver)
+  const marcaAtual=selMarca.value;
+  const modelos=[...new Set(S.veics.filter(v=>!marcaAtual||v.marca===marcaAtual).map(v=>v.modelo).filter(Boolean))].sort();
+  selModelo.innerHTML='<option value="">Todos os modelos</option>'+modelos.map(m=>`<option value="${m}">${m}</option>`).join('');
+  if(curModelo&&modelos.includes(curModelo))selModelo.value=curModelo;
+}
+
+function onVeicMarcaChange(){
+  // Ao trocar marca, repopula modelos disponíveis para essa marca e reseta o filtro de modelo
+  document.getElementById('veic-filter-modelo').value='';
+  fillVeicFilters();
+  renderVeiculos();
+}
+
+function clearVeicFilters(){
+  document.getElementById('veic-search').value='';
+  document.getElementById('veic-filter-marca').value='';
+  document.getElementById('veic-filter-modelo').value='';
+  fillVeicFilters();
+  renderVeiculos();
+}
+
 function renderVeiculos(){
-  document.getElementById('veic-empty').style.display=S.veics.length===0?'':'none';
-  document.getElementById('veic-grid-wrap').style.display=S.veics.length?'':'none';
+  fillVeicFilters();
+
+  const q=(document.getElementById('veic-search')?.value||'').toLowerCase().trim();
+  const fMarca=document.getElementById('veic-filter-marca')?.value||'';
+  const fModelo=document.getElementById('veic-filter-modelo')?.value||'';
+
+  const filtered=S.veics.filter(v=>{
+    if(fMarca&&v.marca!==fMarca)return false;
+    if(fModelo&&v.modelo!==fModelo)return false;
+    if(q&&!v.placa.toLowerCase().includes(q))return false;
+    return true;
+  });
+
+  const hasAny=S.veics.length>0;
+  const hasFiltered=filtered.length>0;
+  const filtersActive=!!(q||fMarca||fModelo);
+
+  document.getElementById('veic-empty').style.display=hasAny?'none':'';
+  document.getElementById('veic-noresults').style.display=(hasAny&&!hasFiltered)?'':'none';
+  document.getElementById('veic-grid-wrap').style.display=hasFiltered?'':'none';
+  document.getElementById('veic-clear-filters').style.display=filtersActive?'':'none';
+
   const badge=document.getElementById('veic-badge');
-  badge.style.display=S.veics.length?'':'none';
-  badge.textContent=S.veics.length+' veículo'+(S.veics.length!==1?'s':'');
-  document.getElementById('veic-grid').innerHTML=S.veics.map(v=>{
+  badge.style.display=hasAny?'':'none';
+  badge.textContent=filtersActive
+    ?`${filtered.length} de ${S.veics.length} veículo${S.veics.length!==1?'s':''}`
+    :`${S.veics.length} veículo${S.veics.length!==1?'s':''}`;
+
+  if(!hasFiltered)return;
+
+  document.getElementById('veic-grid').innerHTML=filtered.map(v=>{
     const m=calcMedia(v.id);const col=hashColor(v.id);
     const abCnt=S.abasts.filter(a=>a.veicId===v.id).length;
     const totalGasto=S.abasts.filter(a=>a.veicId===v.id).reduce((s,a)=>s+a.total,0);
@@ -1584,7 +1979,757 @@ function renderRelatorio(){
 }
 
 
-// ── IMPORTAÇÃO DE PLANILHA ────────────────────────────────────────────────────
+// ── PREÇOS POR POSTO ─────────────────────────────────────────────────────────
+function renderPrecosPosto(){
+  const period=parseInt(document.getElementById('pp-filter-period')?.value||'0')||0;
+
+  // Usa abastecimentos como fonte de preços reais pagos (preco = valor litro)
+  let list=S.abasts.filter(a=>a.preco&&a.preco>0&&a.postoId);
+  if(period){
+    const cutoff=new Date();cutoff.setDate(cutoff.getDate()-period);
+    const cutStr=cutoff.toISOString().slice(0,10);
+    list=list.filter(a=>a.data&&a.data>=cutStr);
+  }
+
+  const has=list.length>0;
+  document.getElementById('pp-empty').style.display=has?'none':'';
+  document.getElementById('pp-main').style.display=has?'':'none';
+
+  const badge=document.getElementById('pp-badge');
+  badge.style.display=has?'':'none';
+
+  if(!has)return;
+
+  // Agrupa por posto
+  const byPosto={};
+  list.forEach(a=>{
+    if(!byPosto[a.postoId])byPosto[a.postoId]=[];
+    byPosto[a.postoId].push(a);
+  });
+
+  // Preço global min/max para contexto
+  const allPrecos=list.map(a=>a.preco);
+  const globalMin=Math.min(...allPrecos);
+  const globalMax=Math.max(...allPrecos);
+  const globalAvg=allPrecos.reduce((s,v)=>s+v,0)/allPrecos.length;
+  const totalGasto=list.reduce((s,a)=>s+a.total,0);
+  const totalLitros=list.reduce((s,a)=>s+a.litros,0);
+
+  // Quanto pagamos a mais que o mínimo
+  const excessoPago=list.reduce((s,a)=>s+((a.preco-globalMin)*a.litros),0);
+
+  badge.textContent=`${Object.keys(byPosto).length} postos`;
+
+  // Stats gerais
+  document.getElementById('pp-stats').innerHTML=`
+    <div class="stat-card stat-accent"><div class="stat-icon stat-icon-accent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="stat-label">Preço médio geral</div>
+      <div class="stat-value" style="font-size:18px">R$ ${globalAvg.toFixed(3).replace('.',',')}</div>
+      <div class="stat-sub">por litro</div></div>
+    <div class="stat-card stat-green"><div class="stat-icon stat-icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg></div>
+      <div class="stat-label">Menor preço pago</div>
+      <div class="stat-value" style="font-size:18px;color:var(--green)">R$ ${globalMin.toFixed(3).replace('.',',')}</div>
+      <div class="stat-sub">melhor tarifa encontrada</div></div>
+    <div class="stat-card stat-red"><div class="stat-icon stat-icon-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg></div>
+      <div class="stat-label">Maior preço pago</div>
+      <div class="stat-value" style="font-size:18px;color:var(--red)">R$ ${globalMax.toFixed(3).replace('.',',')}</div>
+      <div class="stat-sub">pior tarifa registrada</div></div>
+    <div class="stat-card stat-amber"><div class="stat-icon stat-icon-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <div class="stat-label">Excesso pago vs menor</div>
+      <div class="stat-value" style="font-size:18px;color:var(--amber)">${fmtBRL2(excessoPago)}</div>
+      <div class="stat-sub">em ${list.length} abastecimentos</div></div>
+  `;
+
+  // Alertas — postos com maior variação de preço
+  const alerts=[];
+  Object.entries(byPosto).forEach(([pid,rows])=>{
+    const precos=rows.map(r=>r.preco);
+    const pMin=Math.min(...precos),pMax=Math.max(...precos);
+    const variacao=pMax-pMin;
+    if(variacao>=0.1&&rows.length>=2){
+      alerts.push({pid,variacao,pMin,pMax,rows:rows.length,nome:postoName(pid)});
+    }
+  });
+  alerts.sort((a,b)=>b.variacao-a.variacao);
+
+  const alertEl=document.getElementById('pp-alerts');
+  if(alerts.length){
+    alertEl.innerHTML=alerts.slice(0,3).map(a=>`
+      <div style="background:var(--red-bg);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" style="width:18px;height:18px;flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div style="flex:1">
+          <span style="font-size:13px;font-weight:700;color:var(--text)"><strong>${a.nome}</strong></span>
+          <span style="font-size:12px;color:var(--text2);margin-left:8px">variação de <strong style="color:var(--red)">R$ ${a.variacao.toFixed(3).replace('.',',')}/L</strong> em ${a.rows} abastecimentos</span>
+        </div>
+        <span style="font-size:12px;color:var(--text3)">R$ ${a.pMin.toFixed(3).replace('.',',')} → R$ ${a.pMax.toFixed(3).replace('.',',')}</span>
+      </div>
+    `).join('');
+  } else {alertEl.innerHTML='';}
+
+  // Cards por posto
+  const postosSorted=Object.entries(byPosto).map(([pid,rows])=>{
+    const precos=rows.map(r=>r.preco).sort((a,b)=>a-b);
+    const pMin=precos[0],pMax=precos[precos.length-1];
+    const pAvg=precos.reduce((s,v)=>s+v,0)/precos.length;
+    const variacao=pMax-pMin;
+    const litrosTot=rows.reduce((s,r)=>s+r.litros,0);
+    const gastoTot=rows.reduce((s,r)=>s+r.total,0);
+    const excessoLocal=rows.reduce((s,r)=>s+((r.preco-pMin)*r.litros),0);
+    return{pid,nome:postoName(pid),rows,precos,pMin,pMax,pAvg,variacao,litrosTot,gastoTot,excessoLocal};
+  }).sort((a,b)=>b.variacao-a.variacao);
+
+  document.getElementById('pp-postos-grid').innerHTML=postosSorted.map(p=>{
+    // Ordena abastecimentos por data
+    const rowsOrdenados=[...p.rows].sort((a,b)=>(a.data||'').localeCompare(b.data||''));
+    const col=hashColor(p.pid);
+
+    const tableRows=rowsOrdenados.map(r=>{
+      const isCaro=r.preco===p.pMax&&p.variacao>0.01;
+      const isBarato=r.preco===p.pMin&&p.variacao>0.01;
+      const excesso=(r.preco-p.pMin)*r.litros;
+      const v=S.veics.find(x=>x.id===r.veicId);
+      return`<tr style="${isCaro?'background:rgba(239,68,68,0.06)':''}${isBarato?'background:rgba(34,197,94,0.06)':''}">
+        <td style="padding:9px 14px;border-bottom:1px solid var(--border);white-space:nowrap;color:var(--text2)">${fmtDate(r.data)}</td>
+        <td style="padding:9px 14px;border-bottom:1px solid var(--border)">
+          ${v?`<span class="placa-badge" style="font-size:10px">${v.placa}</span>`:'<span style="color:var(--text3)">—</span>'}
+        </td>
+        <td style="padding:9px 14px;border-bottom:1px solid var(--border);color:var(--text2)">${r.litros.toFixed(2).replace('.',',')} L</td>
+        <td style="padding:9px 14px;border-bottom:1px solid var(--border)">
+          <span style="font-weight:700;font-size:14px;color:${isCaro?'var(--red)':isBarato?'var(--green)':'var(--text)'}">
+            R$ ${r.preco.toFixed(3).replace('.',',')}
+          </span>
+          ${isCaro?'<span style="font-size:10px;margin-left:6px;color:var(--red);font-weight:600">▲ MAIS CARO</span>':''}
+          ${isBarato?'<span style="font-size:10px;margin-left:6px;color:var(--green);font-weight:600">▼ MAIS BARATO</span>':''}
+        </td>
+        <td style="padding:9px 14px;border-bottom:1px solid var(--border);font-weight:700;color:var(--text)">${fmtBRL2(r.total)}</td>
+        <td style="padding:9px 14px;border-bottom:1px solid var(--border);color:${excesso>0?'var(--amber)':'var(--text3)'}">
+          ${excesso>0.01?`+${fmtBRL2(excesso)}`:'—'}
+        </td>
+        <td style="padding:9px 14px;border-bottom:1px solid var(--border);color:var(--text3)">${motName(r.motId)}</td>
+      </tr>`;
+    }).join('');
+
+    const variacaoBar=p.variacao>0
+      ?`<div style="margin-top:6px"><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:3px">
+          <span style="color:var(--green)">R$ ${p.pMin.toFixed(3).replace('.',',')}</span>
+          <span style="color:var(--text3)">variação R$ ${p.variacao.toFixed(3).replace('.',',')}</span>
+          <span style="color:var(--red)">R$ ${p.pMax.toFixed(3).replace('.',',')}</span>
+        </div>
+        <div style="height:4px;background:linear-gradient(to right,var(--green),var(--amber),var(--red));border-radius:2px"></div>
+      </div>`:'';
+
+    return`<div class="card">
+      <div class="card-header" style="gap:14px">
+        <div style="display:flex;align-items:center;gap:10px;flex:1">
+          <div class="posto-avatar" style="background:${col}22;color:${col}">${initials(p.nome)}</div>
+          <div>
+            <div class="card-title">${p.nome}</div>
+            <div class="card-sub">${p.rows.length} abastecimentos · ${p.litrosTot.toFixed(0)} L · ${fmtBRL2(p.gastoTot)}</div>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          ${p.variacao>0.01
+            ?`<div style="font-size:12px;color:var(--red);font-weight:700">⚠ Variação de R$ ${p.variacao.toFixed(3).replace('.',',')} /L</div>
+               <div style="font-size:11px;color:var(--amber)">Excesso pago: ${fmtBRL2(p.excessoLocal)}</div>`
+            :`<div style="font-size:12px;color:var(--green);font-weight:600">✓ Preço estável</div>`}
+          ${variacaoBar}
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="min-width:600px">
+          <thead><tr>
+            <th style="padding:9px 14px">Data</th>
+            <th style="padding:9px 14px">Placa</th>
+            <th style="padding:9px 14px">Litros</th>
+            <th style="padding:9px 14px">Preço/L</th>
+            <th style="padding:9px 14px">Total</th>
+            <th style="padding:9px 14px">Excesso pago</th>
+            <th style="padding:9px 14px">Motorista</th>
+          </tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── MONITOR SEMANAL ───────────────────────────────────────────────────────────
+let monChart=null;
+
+async function saveSemana(){
+  const comb=document.getElementById('semana-comb').value;
+  const data=document.getElementById('semana-data').value;
+  const preco=parseFloat(document.getElementById('semana-preco').value);
+  if(!data){alert('Informe a data da semana.');return;}
+  if(!preco||preco<=0){alert('Informe o preço.');return;}
+  const payload={combustivel:comb,data,preco,referencia:document.getElementById('semana-ref').value.trim(),obs:document.getElementById('semana-obs').value.trim()};
+  const eid=document.getElementById('semana-edit-id').value;
+  showLoading(true);
+  try{
+    if(eid){await db(`precos_semana?id=eq.${eid}`,{method:'PATCH',body:JSON.stringify(payload)});toast('Preço atualizado!');}
+    else{await db('precos_semana',{method:'POST',body:JSON.stringify({id:uid(),...payload})});toast('Preço registrado!');}
+    await loadAll();
+  }catch(e){toast('Erro ao salvar. Crie a tabela no Supabase.');}finally{showLoading(false);}
+  closeModal('modal-semana');
+  renderMonitor();
+}
+function editSemana(id){
+  const s=S.semanas.find(x=>x.id===id);
+  document.getElementById('semana-edit-id').value=id;
+  document.getElementById('modal-semana-title').textContent='Editar Preço Semanal';
+  document.getElementById('semana-comb').value=s.combustivel;
+  document.getElementById('semana-data').value=s.data;
+  document.getElementById('semana-preco').value=s.preco;
+  document.getElementById('semana-ref').value=s.referencia||'';
+  document.getElementById('semana-obs').value=s.obs||'';
+  openModal('modal-semana');
+  setTimeout(onSemanaChange,0);
+}
+async function deleteSemana(id){
+  if(!confirm('Excluir este registro?'))return;
+  showLoading(true);
+  try{await db(`precos_semana?id=eq.${id}`,{method:'DELETE'});toast('Excluído.');await loadAll();}
+  catch(e){toast('Erro ao excluir.');}finally{showLoading(false);}
+  renderMonitor();
+}
+
+// Calcula preço médio ponderado dos abastecimentos de uma semana+combustível
+function calcPrecoSemana(semData, comb){
+  const abasts=S.abasts.filter(a=>{
+    if(!a.data||!a.preco||!a.tipo)return false;
+    if(comb&&a.tipo!==comb)return false;
+    return inicioSemana(a.data)===semData;
+  });
+  if(!abasts.length)return null;
+  const totalPL=abasts.reduce((s,a)=>s+(a.preco*a.litros),0);
+  const totalL=abasts.reduce((s,a)=>s+a.litros,0);
+  return{preco:totalPL/totalL,litros:totalL,nAbast:abasts.length,abasts};
+}
+
+// Pega histórico das últimas N semanas a partir de uma data (exclusive)
+function getHistoricoSemanas(semAtual, comb, nSemanas=6){
+  const result=[];
+  const d=new Date(semAtual+'T12:00');
+  for(let i=1;i<=nSemanas;i++){
+    const sem=new Date(d);sem.setDate(d.getDate()-(i*7));
+    const semStr=sem.toISOString().slice(0,10);
+    const r=calcPrecoSemana(semStr,comb);
+    if(r)result.push({data:semStr,...r});
+  }
+  return result; // mais recente primeiro
+}
+
+function onSemanaChange(){
+  const comb=document.getElementById('semana-comb').value;
+  const data=document.getElementById('semana-data').value;
+  if(!data)return;
+
+  const semAtual=inicioSemana(data);
+  const historico=getHistoricoSemanas(semAtual,comb,6);
+
+  const histEl=document.getElementById('semana-historico');
+  const histRows=document.getElementById('semana-hist-rows');
+
+  if(historico.length){
+    histEl.style.display='';
+    histRows.innerHTML=historico.map((h,i)=>{
+      const prev=historico[i+1];
+      const diff=prev?h.preco-prev.preco:null;
+      const dc=diff===null?'var(--text3)':diff>0.005?'var(--red)':diff<-0.005?'var(--green)':'var(--text2)';
+      const di=diff===null?'':diff>0.005?'▲':diff<-0.005?'▼':'→';
+      return`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:12px;color:var(--text3);min-width:120px">${semanaLabel(h.data)}</span>
+        <span style="font-size:13px;font-weight:700;color:var(--text)">R$ ${h.preco.toFixed(3).replace('.',',')}</span>
+        <span style="font-size:11px;color:var(--text2)">${h.nAbast} abast. · ${h.litros.toFixed(0)} L</span>
+        <span style="font-size:11px;font-weight:700;color:${dc};min-width:80px;text-align:right">
+          ${diff!==null?`${di} ${diff>=0?'+':''}R$ ${Math.abs(diff).toFixed(3).replace('.',',')}`:i===historico.length-1?'(inicial)':'—'}
+        </span>
+      </div>`;
+    }).join('');
+    // Sugere preço da semana atual a partir dos abastecimentos
+    const semAtualData=calcPrecoSemana(semAtual,comb);
+    if(semAtualData&&!document.getElementById('semana-preco').value){
+      document.getElementById('semana-preco').value=semAtualData.preco.toFixed(3);
+      document.getElementById('semana-ref').value='Média abastecimentos';
+    }
+  } else {
+    histEl.style.display='none';
+  }
+  onSemanaPrecoChange();
+}
+
+function onSemanaPrecoChange(){
+  const comb=document.getElementById('semana-comb').value;
+  const data=document.getElementById('semana-data').value;
+  const novoPreco=parseFloat(document.getElementById('semana-preco').value);
+  const alertEl=document.getElementById('semana-alert');
+
+  if(!data||!novoPreco||novoPreco<=0){alertEl.style.display='none';return;}
+
+  const semAtual=inicioSemana(data);
+  const historico=getHistoricoSemanas(semAtual,comb,1);
+  const semAnt=historico[0]||null;
+
+  if(!semAnt){
+    alertEl.style.display='';
+    alertEl.style.background='var(--accent-bg)';
+    alertEl.style.border='1px solid var(--accent-border)';
+    alertEl.innerHTML=`<span style="color:var(--accent2);font-weight:600">📋 Primeiro registro para ${comb}</span>
+      <div style="font-size:12px;color:var(--text2);margin-top:3px">Nenhum abastecimento anterior encontrado para comparação.</div>`;
+    return;
+  }
+
+  const diff=novoPreco-semAnt.preco;
+  const pct=(diff/semAnt.preco*100);
+  const litros4s=S.abasts.filter(a=>{const d=new Date();d.setDate(d.getDate()-28);return a.tipo===comb&&a.data>=d.toISOString().slice(0,10);}).reduce((s,a)=>s+a.litros,0);
+  const impacto=Math.abs(diff)*litros4s;
+
+  alertEl.style.display='';
+
+  if(diff>0.005){
+    alertEl.style.background='var(--red-bg)';
+    alertEl.style.border='1px solid rgba(239,68,68,0.3)';
+    alertEl.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:16px">🔴</span>
+        <span style="color:var(--red);font-weight:700;font-size:14px">ALTA DE PREÇO — ${comb}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+        <div style="background:rgba(0,0,0,0.15);border-radius:6px;padding:8px">
+          <div style="color:var(--text3)">Semana anterior (abast.)</div>
+          <div style="font-size:16px;font-weight:800;color:var(--text2)">R$ ${semAnt.preco.toFixed(3).replace('.',',')}</div>
+          <div style="color:var(--text3)">${semAnt.nAbast} abast. · ${semAnt.litros.toFixed(0)} L</div>
+        </div>
+        <div style="background:rgba(239,68,68,0.15);border-radius:6px;padding:8px">
+          <div style="color:var(--text3)">Este registro</div>
+          <div style="font-size:16px;font-weight:800;color:var(--red)">R$ ${novoPreco.toFixed(3).replace('.',',')}</div>
+          <div style="color:var(--red);font-weight:700">▲ +R$ ${diff.toFixed(3).replace('.',',')} (+${pct.toFixed(2)}%)</div>
+        </div>
+      </div>
+      ${impacto>0?`<div style="margin-top:8px;font-size:12px;color:var(--amber);font-weight:600;background:rgba(245,158,11,0.1);border-radius:5px;padding:6px 10px">
+        ⚠ Impacto estimado: +${fmtBRL2(impacto)} nas próximas 4 semanas com base em ${litros4s.toFixed(0)} L abastecidos
+      </div>`:''}`;
+  } else if(diff<-0.005){
+    alertEl.style.background='var(--green-bg)';
+    alertEl.style.border='1px solid rgba(34,197,94,0.3)';
+    alertEl.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:16px">🟢</span>
+        <span style="color:var(--green);font-weight:700;font-size:14px">QUEDA DE PREÇO — ${comb}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+        <div style="background:rgba(0,0,0,0.15);border-radius:6px;padding:8px">
+          <div style="color:var(--text3)">Semana anterior (abast.)</div>
+          <div style="font-size:16px;font-weight:800;color:var(--text2)">R$ ${semAnt.preco.toFixed(3).replace('.',',')}</div>
+        </div>
+        <div style="background:rgba(34,197,94,0.15);border-radius:6px;padding:8px">
+          <div style="color:var(--text3)">Este registro</div>
+          <div style="font-size:16px;font-weight:800;color:var(--green)">R$ ${novoPreco.toFixed(3).replace('.',',')}</div>
+          <div style="color:var(--green);font-weight:700">▼ R$ ${diff.toFixed(3).replace('.',',')} (${pct.toFixed(2)}%)</div>
+        </div>
+      </div>
+      ${impacto>0?`<div style="margin-top:8px;font-size:12px;color:var(--green);font-weight:600;background:rgba(34,197,94,0.1);border-radius:5px;padding:6px 10px">
+        ✓ Economia estimada: ${fmtBRL2(impacto)} nas próximas 4 semanas com base em ${litros4s.toFixed(0)} L abastecidos
+      </div>`:''}`;
+  } else {
+    alertEl.style.background='var(--bg3)';
+    alertEl.style.border='1px solid var(--border2)';
+    alertEl.innerHTML=`<div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:14px">→</span>
+        <span style="color:var(--text2);font-weight:600">Preço estável</span>
+        <span style="font-size:12px;color:var(--text3)">Variação de apenas R$ ${Math.abs(diff).toFixed(3).replace('.',',')} vs semana anterior (${pct>=0?'+':''}${pct.toFixed(2)}%)</span>
+      </div>`;
+  }
+}
+
+function semanaLabel(dataStr){
+  if(!dataStr)return '—';
+  const d=new Date(dataStr+'T12:00');
+  const fim=new Date(d);fim.setDate(d.getDate()+6);
+  return`${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})} – ${fim.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}`;
+}
+
+// Retorna a segunda-feira da semana de uma data string yyyy-mm-dd
+function inicioSemana(dataStr){
+  const d=new Date(dataStr+'T12:00');
+  d.setDate(d.getDate()-((d.getDay()+6)%7));
+  return d.toISOString().slice(0,10);
+}
+
+function renderMonitor(){
+  const filterComb=document.getElementById('mon-filter-comb')?.value||'';
+
+  // Fonte: abastecimentos com preco > 0
+  let abasts=S.abasts.filter(a=>a.preco&&a.preco>0&&a.data&&a.tipo);
+  if(filterComb)abasts=abasts.filter(a=>a.tipo===filterComb);
+
+  const has=abasts.length>0;
+  document.getElementById('mon-empty').style.display=has?'none':'';
+  document.getElementById('mon-main').style.display=has?'':'none';
+  const badge=document.getElementById('mon-badge');
+  badge.style.display=has?'':'none';
+  badge.textContent=`${abasts.length} abastecimento${abasts.length!==1?'s':''}`;
+  if(!has)return;
+
+  // ── Agrupa por combustível → por semana (média ponderada por litros) ─────
+  // estrutura: byCombs[tipo][semanaStr] = {data, preco(médio pond), litros, nAbast}
+  const byCombs={};
+  abasts.forEach(a=>{
+    const sem=inicioSemana(a.data);
+    if(!byCombs[a.tipo])byCombs[a.tipo]={};
+    if(!byCombs[a.tipo][sem])byCombs[a.tipo][sem]={data:sem,totalPrecoLitro:0,litros:0,nAbast:0,totalGasto:0};
+    byCombs[a.tipo][sem].totalPrecoLitro+=a.preco*a.litros;
+    byCombs[a.tipo][sem].litros+=a.litros;
+    byCombs[a.tipo][sem].nAbast++;
+    byCombs[a.tipo][sem].totalGasto+=a.total;
+  });
+  // Calcula média ponderada e converte para array ordenado
+  const byCombsSorted={};
+  Object.entries(byCombs).forEach(([c,semMap])=>{
+    byCombsSorted[c]=Object.values(semMap)
+      .map(s=>({...s,preco:s.totalPrecoLitro/s.litros}))
+      .sort((a,b)=>a.data.localeCompare(b.data));
+  });
+
+  // ── Última e penúltima semana por combustível ──────────────────────────────
+  const ultimosPorComb={};
+  Object.entries(byCombsSorted).forEach(([c,rows])=>{
+    const sorted=[...rows].sort((a,b)=>b.data.localeCompare(a.data));
+    ultimosPorComb[c]={atual:sorted[0],anterior:sorted[1]||null,rows:sorted};
+  });
+
+  // Stats globais — foco no Diesel S-10 ou primeiro disponível
+  const mainComb=ultimosPorComb['Diesel S-10']?'Diesel S-10':Object.keys(ultimosPorComb)[0];
+  const {atual,anterior}=ultimosPorComb[mainComb]||{atual:null,anterior:null};
+  if(!atual)return;
+
+  const variacao=anterior?(atual.preco-anterior.preco):0;
+  const varPct=anterior?(variacao/anterior.preco*100):0;
+  const tendCor=variacao>0.005?'var(--red)':variacao<-0.005?'var(--green)':'var(--text2)';
+  const tendIcon=variacao>0.005?'▲':variacao<-0.005?'▼':'→';
+  const tendLabel=variacao>0.005?'ALTA':variacao<-0.005?'QUEDA':'ESTÁVEL';
+
+  // Custo extra projetado com base nos litros das últimas 4 semanas
+  const ultimas4Sem=new Date();ultimas4Sem.setDate(ultimas4Sem.getDate()-28);
+  const litros4s=S.abasts.filter(a=>a.data&&a.data>=ultimas4Sem.toISOString().slice(0,10)&&a.tipo===mainComb).reduce((s,a)=>s+a.litros,0);
+  const impacto=litros4s*Math.abs(variacao);
+
+  document.getElementById('mon-stats').innerHTML=`
+    <div class="stat-card ${variacao>0.005?'stat-red':variacao<-0.005?'stat-green':'stat-accent'}">
+      <div class="stat-icon ${variacao>0.005?'stat-icon-red':variacao<-0.005?'stat-icon-green':'stat-icon-accent'}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="${variacao>0.005?'23 18 13.5 8.5 8.5 13.5 1 6':'23 6 13.5 15.5 8.5 10.5 1 18'}"/></svg>
+      </div>
+      <div class="stat-label">Tendência — ${mainComb}</div>
+      <div class="stat-value" style="color:${tendCor};font-size:18px">${tendIcon} ${tendLabel}</div>
+      <div class="stat-sub">Semana ${semanaLabel(atual.data)} · ${atual.nAbast} abast.</div>
+    </div>
+    <div class="stat-card stat-accent">
+      <div class="stat-icon stat-icon-accent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="stat-label">Preço médio atual (${mainComb})</div>
+      <div class="stat-value" style="font-size:18px">R$ ${atual.preco.toFixed(3).replace('.',',')}</div>
+      <div class="stat-sub">${anterior?`Semana anterior: R$ ${anterior.preco.toFixed(3).replace('.',',')} (${varPct>=0?'+':''}${varPct.toFixed(2)}%)`:'Primeira semana com dados'}</div>
+    </div>
+    <div class="stat-card ${variacao>0.005?'stat-red':'stat-green'}">
+      <div class="stat-icon ${variacao>0.005?'stat-icon-red':'stat-icon-green'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg></div>
+      <div class="stat-label">Variação vs semana anterior</div>
+      <div class="stat-value" style="font-size:18px;color:${tendCor}">${anterior?(varPct>=0?'+':'')+varPct.toFixed(2)+'%':'—'}</div>
+      <div class="stat-sub">${anterior?`R$ ${variacao>=0?'+':''}${variacao.toFixed(3).replace('.',',')} por litro`:'Sem semana anterior'}</div>
+    </div>
+    <div class="stat-card ${variacao>0.005?'stat-amber':'stat-teal'}">
+      <div class="stat-icon ${variacao>0.005?'stat-icon-amber':'stat-icon-teal'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/></svg></div>
+      <div class="stat-label">Impacto estimado (4 semanas)</div>
+      <div class="stat-value" style="font-size:17px;color:${variacao>0.005?'var(--amber)':'var(--teal)'}">
+        ${anterior?fmtBRL2(impacto):'—'}
+      </div>
+      <div class="stat-sub">${litros4s>0?`Base: ${litros4s.toFixed(0)} L (últimas 4 sem.)`:'Sem abastecimentos recentes'}</div>
+    </div>
+  `;
+
+  // ── Alertas de alta ────────────────────────────────────────────────────────
+  const alertEl=document.getElementById('mon-alerts');
+  const alertas=Object.entries(ultimosPorComb)
+    .filter(([,v])=>v.anterior&&(v.atual.preco-v.anterior.preco)>0.02)
+    .sort((a,b)=>(b[1].atual.preco-b[1].anterior.preco)-(a[1].atual.preco-a[1].anterior.preco));
+  alertEl.innerHTML=alertas.map(([c,v])=>{
+    const diff=v.atual.preco-v.anterior.preco;
+    const pct=(diff/v.anterior.preco*100).toFixed(2);
+    const litrosComb=S.abasts.filter(a=>{const d=new Date();d.setDate(d.getDate()-28);return a.tipo===c&&a.data>=d.toISOString().slice(0,10);}).reduce((s,a)=>s+a.litros,0);
+    const custaExtra=litrosComb*diff;
+    return`<div style="background:var(--red-bg);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:12px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" style="width:20px;height:20px;flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div style="flex:1">
+        <span style="font-size:13px;font-weight:700;color:var(--text)">${c}</span>
+        <span style="font-size:12px;color:var(--text2);margin-left:8px">preço médio subiu <strong style="color:var(--red)">+R$ ${diff.toFixed(3).replace('.',',')} (+${pct}%)</strong> vs semana anterior</span>
+        ${custaExtra>0?`<div style="font-size:11px;color:var(--amber);margin-top:2px">⚠ Impacto estimado: +${fmtBRL2(custaExtra)} nas próximas 4 semanas</div>`:''}
+      </div>
+      <div style="text-align:right;font-size:12px;color:var(--text3)">
+        <div>Semana ant.: R$ ${v.anterior.preco.toFixed(3).replace('.',',')}</div>
+        <div style="color:var(--red);font-weight:700">Esta sem.: R$ ${v.atual.preco.toFixed(3).replace('.',',')}</div>
+        <div style="color:var(--text3);margin-top:2px">${v.atual.nAbast} abast. · ${v.atual.litros.toFixed(0)} L</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // ── Gráfico ────────────────────────────────────────────────────────────────
+  const PALETTE_MON=['#6c63ff','#f59e0b','#22c55e','#ef4444','#14b8a6'];
+  const combKeys=Object.keys(byCombsSorted);
+  const allSems=[...new Set(abasts.map(a=>inicioSemana(a.data)))].sort();
+  const datasets=combKeys.map((c,i)=>{
+    const rows=byCombsSorted[c];
+    return{
+      label:c,
+      data:allSems.map(sem=>{const r=rows.find(x=>x.data===sem);return r?parseFloat(r.preco.toFixed(4)):null;}),
+      borderColor:PALETTE_MON[i%PALETTE_MON.length],
+      backgroundColor:PALETTE_MON[i%PALETTE_MON.length]+'22',
+      tension:0.3,spanGaps:true,pointRadius:5,pointHoverRadius:7,borderWidth:2.5,
+    };
+  });
+  const ctx=document.getElementById('mon-chart').getContext('2d');
+  if(monChart)monChart.destroy();
+  monChart=new Chart(ctx,{
+    type:'line',
+    data:{labels:allSems.map(d=>semanaLabel(d)),datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'top',labels:{color:'#9090a0',font:{size:11,family:'Inter'},boxWidth:10,padding:12}},
+        tooltip:{backgroundColor:'#16161a',borderColor:'#2a2a32',borderWidth:1,titleColor:'#f0f0f4',bodyColor:'#9090a0',
+          callbacks:{label:c=>`${c.dataset.label}: R$ ${Number(c.raw).toFixed(3).replace('.',',')}`}},
+      },
+      scales:{
+        x:{grid:{color:'#2a2a32'},ticks:{color:'#5a5a6a',font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:12}},
+        y:{grid:{color:'#2a2a32'},ticks:{color:'#5a5a6a',font:{size:10},callback:v=>'R$ '+Number(v).toFixed(3).replace('.',',')}},
+      },
+    },
+  });
+
+  // ── Tabela semanal ─────────────────────────────────────────────────────────
+  // todas as combinações comb+semana, ordem decrescente
+  const tabelaRows=[];
+  Object.entries(byCombsSorted).forEach(([c,rows])=>{
+    rows.forEach((r,i)=>{
+      const ant=rows[i-1]||null;
+      tabelaRows.push({comb:c,sem:r,ant});
+    });
+  });
+  tabelaRows.sort((a,b)=>b.sem.data.localeCompare(a.sem.data)||(a.comb.localeCompare(b.comb)));
+
+  document.getElementById('mon-tbody').innerHTML=tabelaRows.slice(0,30).map(({comb,sem,ant})=>{
+    const diff=ant?sem.preco-ant.preco:null;
+    const pct=ant&&ant.preco?(diff/ant.preco*100):null;
+    const difCol=diff===null?'var(--text3)':diff>0.005?'var(--red)':diff<-0.005?'var(--green)':'var(--text2)';
+    const difIcon=diff===null?'—':diff>0.005?'▲':diff<-0.005?'▼':'→';
+    return`<tr>
+      <td style="white-space:nowrap;color:var(--text2);font-size:12px">${semanaLabel(sem.data)}</td>
+      <td>${fuelTag(comb)}</td>
+      <td><span class="price-val">R$ ${sem.preco.toFixed(3).replace('.',',')}</span><div style="font-size:10px;color:var(--text3)">${sem.nAbast} abast. · ${sem.litros.toFixed(0)} L</div></td>
+      <td style="font-weight:700;color:${difCol}">
+        ${diff!==null?`${difIcon} ${diff>=0?'+':''}R$ ${diff.toFixed(3).replace('.',',')} (${pct>=0?'+':''}${pct?.toFixed(1)}%)`:'—'}
+      </td>
+      <td style="color:var(--text3);font-size:12px">${fmtBRL2(sem.totalGasto)}</td>
+    </tr>`;
+  }).join('');
+
+  // ── Cards por combustível ──────────────────────────────────────────────────
+  document.getElementById('mon-por-comb').innerHTML=Object.entries(ultimosPorComb).map(([c,{atual,anterior,rows}])=>{
+    const diff=anterior?atual.preco-anterior.preco:null;
+    const pct=anterior&&anterior.preco?diff/anterior.preco*100:null;
+    const col=diff===null?'var(--text2)':diff>0.005?'var(--red)':diff<-0.005?'var(--green)':'var(--text2)';
+    const icon=diff===null?'→':diff>0.005?'▲':diff<-0.005?'▼':'→';
+    const bgAccent=diff!==null&&diff>0.005?'var(--red-bg)':diff!==null&&diff<-0.005?'var(--green-bg)':'var(--bg3)';
+    const borderAccent=diff!==null&&diff>0.005?'rgba(239,68,68,0.3)':diff!==null&&diff<-0.005?'rgba(34,197,94,0.3)':'var(--border)';
+    return`<div class="card" style="border-color:${borderAccent}">
+      <div class="card-header" style="background:${bgAccent}">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px">${fuelTag(c)}<span style="font-size:20px;font-weight:800;color:${col}">${icon}</span></div>
+          <div style="margin-top:6px;font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.03em">R$ ${atual.preco.toFixed(3).replace('.',',')}</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px">${semanaLabel(atual.data)} · ${atual.nAbast} abast. · ${atual.litros.toFixed(0)} L</div>
+        </div>
+        <div style="text-align:right">
+          ${diff!==null?`
+            <div style="font-size:16px;font-weight:800;color:${col}">${diff>=0?'+':''}${pct?.toFixed(2)}%</div>
+            <div style="font-size:12px;color:${col}">${diff>=0?'+':''}R$ ${diff.toFixed(3).replace('.',',')}/L</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">vs semana anterior</div>`
+          :'<div style="font-size:12px;color:var(--text3)">Primeira semana</div>'}
+        </div>
+      </div>
+      <div style="padding:12px 16px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em">
+          Histórico — últimas ${Math.min(rows.length,6)} semanas
+        </div>
+        ${rows.slice(0,6).map((r,i)=>{
+          const prev=rows[i+1]||null;
+          const d=prev?r.preco-prev.preco:null;
+          const dc=d===null?'var(--text3)':d>0.005?'var(--red)':d<-0.005?'var(--green)':'var(--text2)';
+          const di=d===null?'—':d>0.005?'▲':d<-0.005?'▼':'→';
+          return`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+            <div>
+              <span style="font-size:11px;color:var(--text3)">${semanaLabel(r.data)}</span>
+              <span style="font-size:10px;color:var(--text3);margin-left:6px">${r.nAbast} abast.</span>
+            </div>
+            <span style="font-size:13px;font-weight:700;color:var(--text)">R$ ${r.preco.toFixed(3).replace('.',',')}</span>
+            <span style="font-size:11px;font-weight:700;color:${dc};min-width:80px;text-align:right">
+              ${d!==null?`${di} ${d>=0?'+':''}R$ ${Math.abs(d).toFixed(3).replace('.',',')}`:'—'}
+            </span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  // ── MONITORAMENTO POR POSTO ────────────────────────────────────────────────
+  // Agrupa abastecimentos por posto → por semana → preço médio ponderado
+  const byPosto={};
+  abasts.forEach(a=>{
+    if(!a.postoId)return;
+    const sem=inicioSemana(a.data);
+    if(!byPosto[a.postoId])byPosto[a.postoId]={};
+    if(!byPosto[a.postoId][sem])byPosto[a.postoId][sem]={data:sem,totalPL:0,litros:0,nAbast:0,totalGasto:0,combs:{}};
+    byPosto[a.postoId][sem].totalPL+=a.preco*a.litros;
+    byPosto[a.postoId][sem].litros+=a.litros;
+    byPosto[a.postoId][sem].nAbast++;
+    byPosto[a.postoId][sem].totalGasto+=a.total;
+    if(!byPosto[a.postoId][sem].combs[a.tipo])byPosto[a.postoId][sem].combs[a.tipo]={totalPL:0,litros:0};
+    byPosto[a.postoId][sem].combs[a.tipo].totalPL+=a.preco*a.litros;
+    byPosto[a.postoId][sem].combs[a.tipo].litros+=a.litros;
+  });
+
+  // Converte para arrays e calcula média
+  const postosSemanas={};
+  Object.entries(byPosto).forEach(([pid,semMap])=>{
+    postosSemanas[pid]=Object.values(semMap)
+      .map(s=>({...s,preco:s.totalPL/s.litros,combsAvg:Object.fromEntries(Object.entries(s.combs).map(([c,v])=>[c,v.totalPL/v.litros]))}))
+      .sort((a,b)=>a.data.localeCompare(b.data));
+  });
+
+  // Identifica postos com aumento — última semana vs penúltima
+  const postosComAlerta=[];
+  const postosSemAlerta=[];
+
+  Object.entries(postosSemanas).forEach(([pid,rows])=>{
+    if(rows.length<1)return;
+    const sorted=[...rows].sort((a,b)=>b.data.localeCompare(a.data));
+    const atual=sorted[0];
+    const anterior=sorted[1]||null;
+    const diff=anterior?atual.preco-anterior.preco:null;
+    const pct=anterior&&anterior.preco?diff/anterior.preco*100:null;
+
+    // Variação por combustível neste posto
+    const varComb=[];
+    if(anterior){
+      Object.entries(atual.combsAvg).forEach(([c,precoAtual])=>{
+        const precoAnt=anterior.combsAvg[c];
+        if(precoAnt){
+          const d=precoAtual-precoAnt;
+          if(Math.abs(d)>0.001)varComb.push({c,d,precoAtual,precoAnt,pct:(d/precoAnt*100)});
+        }
+      });
+    }
+    varComb.sort((a,b)=>b.d-a.d);
+
+    const item={pid,rows:sorted,atual,anterior,diff,pct,varComb};
+    if(diff!==null&&diff>0.02)postosComAlerta.push(item);
+    else postosSemAlerta.push(item);
+  });
+
+  postosComAlerta.sort((a,b)=>b.diff-a.diff);
+  postosSemAlerta.sort((a,b)=>b.atual.litros-a.atual.litros);
+  const todosPostos=[...postosComAlerta,...postosSemAlerta];
+
+  // Alertas de posto em destaque
+  const alertaPostoEl=document.getElementById('mon-alertas-posto');
+  alertaPostoEl.innerHTML=postosComAlerta.map(p=>{
+    const litros4s=S.abasts.filter(a=>{const d=new Date();d.setDate(d.getDate()-28);return a.postoId===p.pid&&a.data>=d.toISOString().slice(0,10);}).reduce((s,a)=>s+a.litros,0);
+    const custaExtra=litros4s*p.diff;
+    return`<div style="background:var(--red-bg);border:1.5px solid rgba(239,68,68,0.35);border-radius:10px;padding:14px 18px;display:flex;align-items:flex-start;gap:14px;margin-bottom:8px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" style="width:22px;height:22px;flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:700;color:var(--text)">${postoName(p.pid)}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:3px">
+          Preço médio subiu <strong style="color:var(--red)">+R$ ${p.diff.toFixed(3).replace('.',',')} (+${p.pct.toFixed(2)}%)</strong> esta semana
+        </div>
+        ${p.varComb.filter(v=>v.d>0).map(v=>`
+          <div style="font-size:11px;color:var(--amber);margin-top:2px">
+            ${fuelTag(v.c)} R$ ${v.precoAnt.toFixed(3).replace('.',',')} → <strong>R$ ${v.precoAtual.toFixed(3).replace('.',',')}</strong> (+${v.pct.toFixed(2)}%)
+          </div>`).join('')}
+        ${custaExtra>0?`<div style="font-size:11px;color:var(--amber);margin-top:4px;font-weight:600">⚠ Impacto estimado: +${fmtBRL2(custaExtra)} nas próximas 4 semanas com base no volume atual</div>`:''}
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:11px;color:var(--text3)">Semana ant.</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text2)">R$ ${p.anterior.preco.toFixed(3).replace('.',',')}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">Esta semana</div>
+        <div style="font-size:16px;font-weight:800;color:var(--red)">R$ ${p.atual.preco.toFixed(3).replace('.',',')}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Cards por posto
+  document.getElementById('mon-por-posto').innerHTML=todosPostos.map(p=>{
+    const col=hashColor(p.pid);
+    const diff=p.diff;
+    const isCaro=diff!==null&&diff>0.02;
+    const isBarato=diff!==null&&diff<-0.02;
+    const borderCol=isCaro?'rgba(239,68,68,0.35)':isBarato?'rgba(34,197,94,0.35)':'var(--border)';
+    const bgHeader=isCaro?'var(--red-bg)':isBarato?'var(--green-bg)':'var(--bg3)';
+    const difCor=diff===null?'var(--text2)':isCaro?'var(--red)':isBarato?'var(--green)':'var(--text2)';
+    const difIcon=diff===null?'→':isCaro?'▲':isBarato?'▼':'→';
+    const statusLabel=diff===null?'—':isCaro?'ALTA ▲':isBarato?'QUEDA ▼':'ESTÁVEL →';
+
+    return`<div class="card" style="border-color:${borderCol}">
+      <div style="padding:14px 16px;background:${bgHeader};border-bottom:1px solid ${borderCol}">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div class="posto-avatar" style="background:${col}22;color:${col};flex-shrink:0">${initials(postoName(p.pid))}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${postoName(p.pid)}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">${p.atual.nAbast} abast. · ${p.atual.litros.toFixed(0)} L · ${fmtBRL2(p.atual.totalGasto)}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:11px;font-weight:700;color:${difCor}">${statusLabel}</div>
+            ${diff!==null?`<div style="font-size:12px;font-weight:700;color:${difCor}">${diff>=0?'+':''}R$ ${diff.toFixed(3).replace('.',',')}</div>
+            <div style="font-size:10px;color:${difCor}">${p.pct>=0?'+':''}${p.pct?.toFixed(2)}%</div>`:''}
+          </div>
+        </div>
+        <!-- Preço atual grande -->
+        <div style="display:flex;align-items:baseline;gap:8px;margin-top:10px">
+          <div style="font-size:24px;font-weight:800;color:var(--text);letter-spacing:-0.03em">R$ ${p.atual.preco.toFixed(3).replace('.',',')}</div>
+          <div style="font-size:12px;color:var(--text3)">/L (média) · ${semanaLabel(p.atual.data)}</div>
+        </div>
+        ${p.anterior?`<div style="font-size:11px;color:var(--text3);margin-top:2px">Semana anterior: R$ ${p.anterior.preco.toFixed(3).replace('.',',')} /L</div>`:''}
+      </div>
+      <!-- Por combustível neste posto -->
+      <div style="padding:10px 16px">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:6px">Preço por combustível — esta semana</div>
+        ${Object.entries(p.atual.combsAvg).map(([c,preco])=>{
+          const precoAnt=p.anterior?.combsAvg[c];
+          const d=precoAnt?preco-precoAnt:null;
+          const dc=d===null?'var(--text3)':d>0.005?'var(--red)':d<-0.005?'var(--green)':'var(--text2)';
+          const di=d===null?'':d>0.005?'▲':d<-0.005?'▼':'→';
+          return`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:6px">${fuelTag(c)}</div>
+            <span style="font-size:13px;font-weight:700;color:var(--text)">R$ ${preco.toFixed(3).replace('.',',')}</span>
+            <span style="font-size:11px;color:${dc};font-weight:700;min-width:70px;text-align:right">
+              ${d!==null?`${di} ${d>=0?'+':''}R$ ${Math.abs(d).toFixed(3).replace('.',',')}`:precoAnt?'→':'—'}
+            </span>
+          </div>`;
+        }).join('')}
+      </div>
+      <!-- Histórico semanas -->
+      <div style="padding:8px 16px 12px">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:5px">Histórico semanal</div>
+        ${p.rows.slice(0,4).map((r,i)=>{
+          const prev=p.rows[i+1];
+          const d=prev?r.preco-prev.preco:null;
+          const dc=d===null?'var(--text3)':d>0.005?'var(--red)':d<-0.005?'var(--green)':'var(--text2)';
+          return`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:11px;color:var(--text3)">${semanaLabel(r.data)}</span>
+            <span style="font-size:12px;font-weight:700;color:var(--text)">R$ ${r.preco.toFixed(3).replace('.',',')}</span>
+            <span style="font-size:10px;color:${dc};font-weight:700">
+              ${d!==null?(d>=0?'▲ +':'▼ ')+'R$ '+Math.abs(d).toFixed(3).replace('.',','):'—'}
+            </span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
 let importRows=[];
 
 function handleImportFile(input){
